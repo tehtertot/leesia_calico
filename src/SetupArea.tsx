@@ -10,8 +10,8 @@ import stripes from './calico tiles/patterns/stripes.png';
 import swirls from './calico tiles/patterns/swirls.png';
 
 const config = {
-  "layout": { "width": 27, "height": 27, "flat": true, "spacing": 1.2 },
-  "origin": { "x": -260, "y": -24 },
+  "layout": { "width": 45, "height": 45, "spacing": 1 },
+  "origin": { "x": -510, "y": -10 },
 }
 
 interface SetupAreaState {
@@ -25,11 +25,11 @@ class SetupArea extends Component<{}, SetupAreaState> {
     const patternIds = getDistinctRandomNumbers(6, 0, 5);
     const hexPatterns : Hex[] = [
       { q: 0, r: 0, s: 0, image: patterns[patternIds[0]] },
-      { q: 1, r: 0, s: -1, image: patterns[patternIds[1]] },
-      { q: 2.35, r: 0, s: -2, image: patterns[patternIds[2]] },
-      { q: 3.35, r: 0, s: -3, image: patterns[patternIds[3]] },
-      { q: 4.8, r: 0, s: -4, image: patterns[patternIds[4]] },
-      { q: 5.8, r: 0, s: -5, image: patterns[patternIds[5]] },
+      { q: 1.4, r: 0, s: -1, image: patterns[patternIds[1]] },
+      { q: 3.55, r: 0, s: -2, image: patterns[patternIds[2]] },
+      { q: 5, r: 0, s: -3, image: patterns[patternIds[3]] },
+      { q: 7.15, r: 0, s: -4, image: patterns[patternIds[4]] },
+      { q: 8.6, r: 0, s: -5, image: patterns[patternIds[5]] },
     ];
     this.state = { patterns: hexPatterns };
   }
