@@ -1,0 +1,41 @@
+{
+  "files": {
+    "main.css": "/leesia_calico/static/css/main.2a9504d6.css",
+    "main.js": "/leesia_calico/static/js/main.f5cec946.js",
+    "static/js/453.84f8b851.chunk.js": "/leesia_calico/static/js/453.84f8b851.chunk.js",
+    "static/media/yellow.jpg": "/leesia_calico/static/media/yellow.2de840d5699a4dee112c.jpg",
+    "static/media/blue.jpg": "/leesia_calico/static/media/blue.ec6a6d1ce7d83f31db15.jpg",
+    "static/media/green.jpg": "/leesia_calico/static/media/green.f648fe173dc6d67b3bfb.jpg",
+    "static/media/purple.jpg": "/leesia_calico/static/media/purple.7acd338f1d797a59b3e5.jpg",
+    "static/media/rumi.png": "/leesia_calico/static/media/rumi.3ee467a5fbed1fda71a0.png",
+    "static/media/almond.png": "/leesia_calico/static/media/almond.7f465a58c548ac90e198.png",
+    "static/media/tecolote.png": "/leesia_calico/static/media/tecolote.66c59d704685def95bf5.png",
+    "static/media/tibbit.png": "/leesia_calico/static/media/tibbit.e40e8060ba4415f0d3ce.png",
+    "static/media/cira.png": "/leesia_calico/static/media/cira.e7c0b92b84f447579e3c.png",
+    "static/media/millie.png": "/leesia_calico/static/media/millie.a8986210b5001839e237.png",
+    "static/media/gwen.png": "/leesia_calico/static/media/gwen.c8dba1c55c4637edc2d1.png",
+    "static/media/callie.png": "/leesia_calico/static/media/callie.6ce40f11696aa0f36258.png",
+    "static/media/leo.png": "/leesia_calico/static/media/leo.048d9e1b32a9fa39a344.png",
+    "static/media/coconut.png": "/leesia_calico/static/media/coconut.0e55f7c69403662695f5.png",
+    "static/media/1.png": "/leesia_calico/static/media/1.9f49605d86ac7b60d51c.png",
+    "static/media/4.png": "/leesia_calico/static/media/4.c6072dca58a397429673.png",
+    "static/media/5.png": "/leesia_calico/static/media/5.2e4aa72e6a49e702bf39.png",
+    "static/media/3.png": "/leesia_calico/static/media/3.0b131e501ef55ee5fd3d.png",
+    "static/media/6.png": "/leesia_calico/static/media/6.97decf1e3b7569a56aa7.png",
+    "static/media/2.png": "/leesia_calico/static/media/2.886a8d1881359277d538.png",
+    "static/media/swirls.png": "/leesia_calico/static/media/swirls.1022c2cc012aac9a6b44.png",
+    "static/media/ferns.png": "/leesia_calico/static/media/ferns.da8a8b3e0e293ed39094.png",
+    "static/media/clovers.png": "/leesia_calico/static/media/clovers.02c0833696147fdb57a1.png",
+    "static/media/flowers.png": "/leesia_calico/static/media/flowers.b5618e24a6a339a0c3a2.png",
+    "static/media/dots.png": "/leesia_calico/static/media/dots.0654a41515f1bfa707c7.png",
+    "static/media/stripes.png": "/leesia_calico/static/media/stripes.4cfae477dd28b4cfbc86.png",
+    "index.html": "/leesia_calico/index.html",
+    "main.2a9504d6.css.map": "/leesia_calico/static/css/main.2a9504d6.css.map",
+    "main.f5cec946.js.map": "/leesia_calico/static/js/main.f5cec946.js.map",
+    "453.84f8b851.chunk.js.map": "/leesia_calico/static/js/453.84f8b851.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2a9504d6.css",
+    "static/js/main.f5cec946.js"
+  ]
+}
