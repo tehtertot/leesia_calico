@@ -43,7 +43,7 @@ import { GameContext, GameContextProps } from './GameContext';
 
 const config = {
   "layout": { "width": 45, "height": 45, "spacing": 1 },
-  "origin": { "x": -510, "y": -60 },
+  "origin": { "x": -450, "y": -60 },
 }
 
 const idToPattern = ["", "dots", "ferns", "flowers", "clovers", "stripes", "swirls"];
@@ -52,41 +52,27 @@ class SetupArea extends Component {
   static contextType = GameContext;
   context!: React.ContextType<typeof GameContext>;
 
-  onClick(e: any, h: any) {
-    const { setActiveTile } = this.context;
-    setActiveTile(h.data);
+  clickActiveTile(e: any, h: any) {
+    const { state, setActiveTile } = this.context;
+    if (state.playerTiles.length === 2)
+    {
+      setActiveTile(h.data);
+    }
   }
 
-  onDrop(event: any,
-    source: any,
-    targetProps: any ) {
-      console.log('play area on drop')
-    // const { boardHexagons: hexagons } = this.state;
-    // targetProps = targetProps as HexagonProps;
-    // const hexas = hexagons.map(hex => {
-    //   // When hexagon is dropped on this hexagon, copy it's image and text
-    //   if (HexUtils.equals(source.state.hex, hex)) {
-    //     hex.image = targetProps.data.image;
-    //     hex.text = targetProps.data.text;
-    //   }
-    //   return hex;
-    // });
-    // this.setState({ boardHexagons: hexas });
-  }
-  
-  onDragStart(
-    event: any,
-    source: any) {
-      console.log("play area on drag start")
-      console.log(source)
-  }
-
-  onDragEnd(event: any,
-    source: any,
-    success: any) {
-    console.log("game board on drag end")
-    if (!success) {
-      return;
+  selectPoolTile(e: any, h: any) {
+    const { state, drawAvailableTileForPool } = this.context;
+    if (state.playerTiles.length === 1)
+    {
+      state.playerTiles.push(h.data);
+      // refill the pool
+      drawAvailableTileForPool(h.data.id);
+      // have the other player drawe a tile
+      // refill the pool
+      
+      // add the selected tile to the user's hand
+      
+      // drawAvailableTile();
     }
   }
 
@@ -108,27 +94,55 @@ class SetupArea extends Component {
           s={2}
           data={state.playerTiles[0]}
           fill={this.getTileImageId(state.playerTiles[0])}
-          onClick={(e, h) => this.onClick(e, h)}
-          onDrop={ (e, h, t) => this.onDrop(e, h, t) }
-          onDragStart={ (e, h) => this.onDragStart(e, h) }
-          onDragEnd={ (e, h, t) => this.onDragEnd(e, h, t) }
+          onClick={(e, h) => this.clickActiveTile(e, h)}
           style={{
             stroke: state.playerTiles[0].id === state.activeTile?.id ? state.playerColor : "none",
             strokeWidth: state.playerTiles[0].id === state.activeTile?.id ? 5 : 0,
           }}
+        />
+        {state.playerTiles[1]? 
+          <Hexagon
+            key={state.playerTiles[1].id}
+            q={1}
+            r={1}
+            s={2}
+            data={state.playerTiles[1]}
+            fill={this.getTileImageId(state.playerTiles[1])}
+            onClick={(e, h) => this.clickActiveTile(e, h)}
+            style={{
+              stroke: state.playerTiles[1].id === state.activeTile?.id ? state.playerColor : "none",
+              strokeWidth: state.playerTiles[1].id === state.activeTile?.id ? 5 : 0,
+            }}
           />
+          : <div />
+        }
+
         <Hexagon
-          key={state.playerTiles[1].id}
-          q={1}
+          key={state.poolTiles[0].id}
+          q={4}
           r={1}
           s={2}
-          data={state.playerTiles[1]}
-          fill={this.getTileImageId(state.playerTiles[1])}
-          onClick={(e, h) => this.onClick(e, h)}
-          style={{
-            stroke: state.playerTiles[1].id === state.activeTile?.id ? state.playerColor : "none",
-            strokeWidth: state.playerTiles[1].id === state.activeTile?.id ? 5 : 0,
-          }}
+          data={state.poolTiles[0]}
+          fill={this.getTileImageId(state.poolTiles[0])}
+          onClick={(e, h) => this.selectPoolTile(e, h)}
+        />
+        <Hexagon
+          key={state.poolTiles[1].id}
+          q={5}
+          r={1}
+          s={2}
+          data={state.poolTiles[1]}
+          fill={this.getTileImageId(state.poolTiles[1])}
+          onClick={(e, h) => this.selectPoolTile(e, h)}
+        />
+        <Hexagon
+          key={state.poolTiles[2].id}
+          q={6}
+          r={1}
+          s={2}
+          data={state.poolTiles[2]}
+          fill={this.getTileImageId(state.poolTiles[2])}
+          onClick={(e, h) => this.selectPoolTile(e, h)}
         />
         <Pattern id="darkBlue1" size={innerSize} link={darkBlue1} />
         <Pattern id="darkBlue2" size={innerSize} link={darkBlue2} />

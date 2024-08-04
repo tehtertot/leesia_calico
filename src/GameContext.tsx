@@ -29,13 +29,17 @@ export interface GameState {
   patterns: Hex[];
   availableTiles: Tile[];
   playerTiles: Tile[];
+  poolTiles: Tile[];
   activeTile: Tile | undefined;
 }
 
 export interface GameContextProps {
   state: GameState;
   updateBoard: (hexagons: Hex[]) => void;
+  updatePlayerTiles: (tiles: Tile[]) => void;
   setActiveTile: (tile?: Tile | undefined) => void;
+  drawAvailableTileForPool: (id: number) => void;
+  drawFromPool(tile: Tile): void;
 }
 
 function SetInitialGameState(): GameState {
@@ -93,7 +97,7 @@ function SetInitialGameState(): GameState {
     { q: 8.6, r: 0, s: -5, image: patterns[patternIds[5]] },
   ];
 
-  // set player tiles
+  // create all tiles
   const colors = ["darkBlue", "green", "lightBlue", "pink", "purple", "yellow"];
   const allTiles: Tile[] = [];
   let id = 0;
@@ -106,9 +110,14 @@ function SetInitialGameState(): GameState {
     }
   }
 
-  const starterTiles = getDistinctRandomNumbers(2, 0, allTiles.length - 1);
+  const starterTiles = getDistinctRandomNumbers(5, 0, allTiles.length - 1);
+  // set player tiles
   allTiles[starterTiles[0]].isUsed = true;
   allTiles[starterTiles[1]].isUsed = true;
+  // set pool tiles
+  allTiles[starterTiles[2]].isUsed = true;
+  allTiles[starterTiles[3]].isUsed = true;
+  allTiles[starterTiles[4]].isUsed = true;
 
   return {
     selectedBoard: randomBoard,
@@ -127,13 +136,21 @@ function SetInitialGameState(): GameState {
       allTiles[starterTiles[1]],
     ],
     activeTile: undefined,
+    poolTiles: [
+      allTiles[starterTiles[2]],
+      allTiles[starterTiles[3]],
+      allTiles[starterTiles[4]],
+    ],
   };
 }
 
 export const GameContext = createContext<GameContextProps>({
   state: SetInitialGameState(),
   updateBoard: (hexagons: Hex[]) => {},
+  updatePlayerTiles: (tiles: Tile[]) => {},
   setActiveTile: (tile?: Tile | undefined) => {},
+  drawAvailableTileForPool: (id: number) => {},
+  drawFromPool: (tile: Tile) => {},
 });
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
@@ -143,17 +160,44 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       this.setState({ boardHexagons: hexagons });
   };
 
+  updatePlayerTiles = (tiles: Tile[]): void => {
+    this.setState({ playerTiles: tiles });
+  };
+
   setActiveTile = (tile?: Tile | undefined): void => {
-    console.log("tile incoming!")
-    console.log(tile)
     this.setState({ activeTile: tile });
+  };
+
+  drawAvailableTileForPool = (id: number): void => {
+    if (this.state.availableTiles.length === 0) {
+      throw new Error("No more tiles available");
+    }
+
+    let randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
+    while (this.state.availableTiles[randomIndex].isUsed) {
+      randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
+    }
+    const tile = this.state.availableTiles[randomIndex];
+    this.state.availableTiles[randomIndex].isUsed = true;
+    this.state.poolTiles = this.state.poolTiles.filter(tile => tile.id !== id);
+    this.state.poolTiles.push(tile);
+    this.setState({ availableTiles: this.state.availableTiles, poolTiles: this.state.poolTiles });
+  };
+
+  drawFromPool = (tile: Tile): void => {
+    if (this.state.playerTiles.length === 1) {
+      this.state.playerTiles.push(tile);
+    }
   };
 
   render() {
     const contextValue: GameContextProps = {
       state: this.state,
       updateBoard: this.updateBoard,
+      updatePlayerTiles: this.updatePlayerTiles,
       setActiveTile: this.setActiveTile,
+      drawAvailableTileForPool: this.drawAvailableTileForPool,
+      drawFromPool: this.drawFromPool,
     };
 
     return (

@@ -61,28 +61,20 @@ class GameLayout extends Component<{}, GameContextProps> {
   context!: React.ContextType<typeof GameContext>;
 
   // check whether the spot is available for tile placement
-  onDragOver(event: any, source: any) {
-    if (!source.props.fill) {
-      event.preventDefault();
+  onClick(event: any, source: any) {
+    const { state, updateBoard, updatePlayerTiles } = this.context;
+    if (!source.props.fill && state.activeTile) {
+      // fill the spot on the board with the current active tile
+      const selectedSpot : Hex | undefined = state.boardHexagons.find(hex => HexUtils.equals(source.state.hex, hex));
+      if (selectedSpot) {
+        selectedSpot.image = `x-${state.activeTile.color}${state.activeTile.patternId}`;
+      }
+      state.playerTiles = state.playerTiles.filter(tile => tile.id !== state.activeTile!.id);
+      updateBoard(state.boardHexagons);
+      updatePlayerTiles(state.playerTiles);
     }
   }
   
-  // onDrop you can read information of the hexagon that initiated the drag
-  onDrop(event: any, source: any, targetProps: any) {
-    console.log("on drop")
-    console.log(source);
-    console.log(targetProps)
-    const { state, updateBoard } = this.context;
-    const hexas = state.boardHexagons.map(hex => {
-      if (HexUtils.equals(source.state.hex, hex)) {
-        hex.image = "x-" + targetProps.fill;
-      }
-      return hex;
-    });
-
-    updateBoard(hexas);
-  }
-
   render() {
     const { state } = this.context as GameContextProps;
     
@@ -102,8 +94,9 @@ class GameLayout extends Component<{}, GameContextProps> {
               s={ hex.s }
               data={ hex }
               fill={ hex.image != null ? hex.image : undefined }
-              onDragOver={ (e, h) => this.onDragOver(e, h) }
-              onDrop={ (e, h, t) => this.onDrop(e, h, t) }
+              onClick={ (e, h) => this.onClick(e, h) }
+              // onDragOver={ (e, h) => this.onDragOver(e, h) }
+              // onDrop={ (e, h, t) => this.onDrop(e, h, t) }
              >
             </Hexagon>
           ))

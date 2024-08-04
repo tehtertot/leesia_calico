@@ -24,7 +24,7 @@ class App extends Component {
           </HexGrid>
         </div>
         <div className="play-area">
-          <HexGrid width={1200} height={100} >
+          <HexGrid width={1200} height={120} >
             <PlayArea />
           </HexGrid>
         </div>
