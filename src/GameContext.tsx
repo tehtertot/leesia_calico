@@ -64,21 +64,25 @@ export interface GameState {
   allTiles: Tile[];
   playerTiles: Tile[];
   poolTiles: Tile[];
-  activeTile: Tile | undefined;
   playState: PlayState;
   tilesPlaced: number;
   otherPlayerCount: number;
+  activeTile: Tile | undefined;
   activeButton: string | undefined;
+  activeCatGoal: string | undefined;
   buttonsPlayed: ButtonsPlayed;
+  catsPlayed: ButtonsPlayed;
 }
 
 export interface GameContextProps {
   state: GameState;
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => void;
-  setActiveTile: (tile?: Tile | undefined) => void;
   refillPool: (id: number) => void;
+  setActiveTile: (tile?: Tile | undefined) => void;
   setActiveButton: (button: string | undefined) => void;
+  setActiveCatGoal: (catGoal: string | undefined) => void;
   addButton: (color: string, position: Position) => void;
+  addCatButton: (cat: string, position: Position) => void;
 }
 
 function SetInitialGameState(): GameState {
@@ -196,7 +200,20 @@ function SetInitialGameState(): GameState {
       purple: [],
       yellow: [],
       rainbow: [],
-    }
+    },
+    activeCatGoal: undefined,
+    catsPlayed: {
+      callie: [],
+      millie: [],
+      rumi: [],
+      tibbit: [],
+      coconut: [],
+      tecolote: [],
+      almond: [],
+      cira: [],
+      gwen: [],
+      leo: [],
+    },
   };
 }
 
@@ -207,6 +224,8 @@ export const GameContext = createContext<GameContextProps>({
   refillPool: (id: number) => {},
   setActiveButton: (button: string | undefined) => {},
   addButton: (color: string, position: Position) => {},
+  setActiveCatGoal: (catGoal: string | undefined) => {},
+  addCatButton: (cat: string, position: Position) => {},
 });
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
@@ -230,11 +249,19 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
   setActiveButton = (button: string | undefined): void => {
     this.setState({ activeButton: button });
   };
-
+  
   addButton = (color: string, position: Position): void => {
-    const buttonsPlayed = this.state.buttonsPlayed;
-    buttonsPlayed[color].push(position);
-    this.setState({ buttonsPlayed: buttonsPlayed, activeButton: undefined });
+    this.state.buttonsPlayed[color].push(position);
+    this.setState({ buttonsPlayed: this.state.buttonsPlayed, activeButton: undefined });
+  };
+
+  setActiveCatGoal = (cat: string | undefined): void => {
+    this.setState({ activeCatGoal: cat });
+  };
+
+  addCatButton = (cat: string, position: Position): void => {
+    this.state.catsPlayed[cat].push(position);
+    this.setState({ catsPlayed: this.state.catsPlayed, activeCatGoal: undefined });
   };
 
   refillPool = (index: number): void => {
@@ -280,6 +307,8 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       setActiveButton: this.setActiveButton,
       refillPool: this.refillPool,
       addButton: this.addButton,
+      addCatButton: this.addCatButton,
+      setActiveCatGoal: this.setActiveCatGoal,
     };
 
     return (

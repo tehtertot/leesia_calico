@@ -57,6 +57,16 @@ import yellowButton from './calico tiles/buttons/yellow.png';
 import yellowButtonActive from './calico tiles/buttons/yellow-active.png';
 import rainbowButton from './calico tiles/buttons/rainbow.png';
 import rainbowButtonActive from './calico tiles/buttons/rainbow-active.png';
+import almond from './calico tiles/catPoints/almond.png';
+import callie from './calico tiles/catPoints/callie.png';
+import cira from './calico tiles/catPoints/cira.png';
+import coconut from './calico tiles/catPoints/coconut.png';
+import gwen from './calico tiles/catPoints/gwen.png';
+import leo from './calico tiles/catPoints/leo.png';
+import millie from './calico tiles/catPoints/millie.png';
+import rumi from './calico tiles/catPoints/rumi.png';
+import tecolote from './calico tiles/catPoints/tecolote.png';
+import tibbit from './calico tiles/catPoints/tibbit.png';
 import { ButtonColor, GameContext, GameContextProps, PlayState } from './GameContext';
 
 const config = {
@@ -68,11 +78,11 @@ const config = {
   "mapProps": [4]
 }
 
-type ColorImagesMap = {
-  [key: string]: [string, string];
+type ImagesMap = {
+  [key: string]: string[];
 }
 
-const colorImagesMap: ColorImagesMap = {
+const colorImagesMap: ImagesMap = {
   "darkBlue": [darkBlueButton, darkBlueButtonActive],
   "green": [greenButton, greenButtonActive],
   "lightBlue": [lightBlueButton, lightBlueButtonActive],
@@ -82,13 +92,26 @@ const colorImagesMap: ColorImagesMap = {
   "rainbow": [rainbowButton, rainbowButtonActive],
 }
 
+const catImagesMap: ImagesMap = {
+  "almond": [almond],
+  "callie": [callie],
+  "cira": [cira],
+  "coconut": [coconut],
+  "gwen": [gwen],
+  "leo": [leo],
+  "millie": [millie],
+  "rumi": [rumi],
+  "tecolote": [tecolote],
+  "tibbit": [tibbit],
+}
+
 class GameLayout extends Component<{}, GameContextProps> {
   static contextType = GameContext;
   context!: React.ContextType<typeof GameContext>;
 
   // check whether the spot is available for tile placement
   onClick(event: any, source: any) {
-    const { state, updateBoardAndPlayerTiles, addButton } = this.context;
+    const { state, updateBoardAndPlayerTiles, addButton, addCatButton } = this.context;
     if (!source.props.fill && state.activeTile && state.playState === PlayState.TILE_SELECTED) {
       // fill the spot on the board with the current active tile
       const selectedSpot : Hex | undefined = state.boardHexagons.find(hex => HexUtils.equals(source.state.hex, hex));
@@ -110,11 +133,22 @@ class GameLayout extends Component<{}, GameContextProps> {
       width = state.activeButton === 'rainbow' ? width - 10 : width + 5;
       addButton(state.activeButton, { x: width, y: height });
     }
+    else if (source.props.fill && state.activeCatGoal && !source.props.fill.startsWith('goal')) {
+      const heights = [333, 417, 503, 587, 671];
+      const widths = [
+        [288, 388, 488, 588, 688],
+        [238, 338, 438, 538, 638],
+      ];
+      const height = heights[source.state.hex.r];
+      const widthsIdx = source.state.hex.r % 2 === 0 ? 0 : 1;
+      let width = widths[widthsIdx][Math.abs(source.state.hex.s)];
+      addCatButton(state.activeCatGoal, { x: width, y: height });
+    }
   }
 
   setActiveButton(color: ButtonColor) {
     const { state, setActiveButton } = this.context;
-    if (!state.activeTile) {
+    if (!state.activeTile && !state.activeCatGoal) {
       const updatedColor = state.activeButton === color ? undefined : color;
       setActiveButton(updatedColor);
     }
@@ -140,13 +174,22 @@ class GameLayout extends Component<{}, GameContextProps> {
           }
         </div>
         <div className="board-area" style={{ backgroundImage: `url(${state.selectedBoard})` }}>
-        {state.buttonsPlayed && Object.entries(state.buttonsPlayed).map(([color, positions], index) => (
-          positions.map((position, index) => (
-            <img
-              key={ color + index }
-              src={colorImagesMap[color][0]}
-              style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '4%' }}
-              />
+          {state.buttonsPlayed && Object.entries(state.buttonsPlayed).map(([color, positions], index) => (
+            positions.map((position, index) => (
+              <img
+                key={ color + index }
+                src={colorImagesMap[color][0]}
+                style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '5%' }}
+                />
+            ))
+          ))}
+          {state.catsPlayed && Object.entries(state.catsPlayed).map(([cat, positions], index) => (
+            positions.map((position, index) => (
+              <img
+                key={ cat + index }
+                src={catImagesMap[cat][0]}
+                style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '5%' }}
+                />
             ))
           ))}
           <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">

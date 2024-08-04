@@ -54,6 +54,7 @@ class SetupArea extends Component {
     const { state, setActiveTile } = this.context;
     if (state.playerTiles.length === 2 &&
       state.activeButton === undefined &&
+      state.activeCatGoal === undefined &&
       (state.playState === PlayState.START || state.playState === PlayState.TILE_SELECTED || state.playState === PlayState.TILE_DRAWN))
     {
       setActiveTile(h.data);
