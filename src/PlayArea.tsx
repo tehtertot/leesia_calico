@@ -39,7 +39,7 @@ import yellow4 from './calico tiles/tiles/yellow/4.png';
 import yellow5 from './calico tiles/tiles/yellow/5.png';
 import yellow6 from './calico tiles/tiles/yellow/6.png';
 import { Tile } from './Tile';
-import { GameContext, GameContextProps } from './GameContext';
+import { GameContext, GameContextProps, PlayState } from './GameContext';
 
 const config = {
   "layout": { "width": 45, "height": 45, "spacing": 1 },
@@ -54,25 +54,18 @@ class SetupArea extends Component {
 
   clickActiveTile(e: any, h: any) {
     const { state, setActiveTile } = this.context;
-    if (state.playerTiles.length === 2)
+    if (state.playerTiles.length === 2 && (state.playState === PlayState.START || state.playState === PlayState.TILE_DRAWN))
     {
       setActiveTile(h.data);
     }
   }
 
   selectPoolTile(e: any, h: any) {
-    const { state, drawAvailableTileForPool } = this.context;
+    const { state, refillPool: refillPool } = this.context;
     if (state.playerTiles.length === 1)
     {
       state.playerTiles.push(h.data);
-      // refill the pool
-      drawAvailableTileForPool(h.data.id);
-      // have the other player drawe a tile
-      // refill the pool
-      
-      // add the selected tile to the user's hand
-      
-      // drawAvailableTile();
+      refillPool(h.data.id);
     }
   }
 

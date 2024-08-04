@@ -18,11 +18,7 @@ class App extends Component {
     return (
       <GameProvider>
         <SetupArea />
-        <div className="game-board" style={{ backgroundImage: `url(${state.selectedBoard})` }}>
-          <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
-            <GameBoard />
-          </HexGrid>
-        </div>
+        <GameBoard />
         <div className="play-area">
           <HexGrid width={1200} height={120} >
             <PlayArea />

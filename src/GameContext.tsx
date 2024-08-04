@@ -20,6 +20,16 @@ import rumi from './calico tiles/catGoals/rumi.png';
 import tecolote from './calico tiles/catGoals/tecolote.png';
 import tibbit from './calico tiles/catGoals/tibbit.png';
 
+const TILES_PLAYED_END_GAME : number = 21;
+
+export enum PlayState {
+  START,
+  TILE_SELECTED,
+  TILE_PLACED,
+  TILE_DRAWN,
+  END,
+}
+
 export interface GameState {
   goalIds: number[];
   selectedBoard: string;
@@ -31,15 +41,16 @@ export interface GameState {
   playerTiles: Tile[];
   poolTiles: Tile[];
   activeTile: Tile | undefined;
+  playState: PlayState;
+  tilesPlaced: number;
+  otherPlayerCount: number;
 }
 
 export interface GameContextProps {
   state: GameState;
-  updateBoard: (hexagons: Hex[]) => void;
-  updatePlayerTiles: (tiles: Tile[]) => void;
+  updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => void;
   setActiveTile: (tile?: Tile | undefined) => void;
-  drawAvailableTileForPool: (id: number) => void;
-  drawFromPool(tile: Tile): void;
+  refillPool: (id: number) => void;
 }
 
 function SetInitialGameState(): GameState {
@@ -84,8 +95,12 @@ function SetInitialGameState(): GameState {
   ];
 
   // set the cat goals
-  const catGoals = [ almond, callie, cira, coconut, gwen, leo, millie, rumi, tecolote, tibbit ];
-  const selectedCatPatterns = getDistinctRandomNumbers(3, 0, catGoals.length - 1);
+  const catGoals = [[ callie, millie ], [ rumi, tibbit ], [ coconut, tecolote ], [ almond, cira ], [ gwen, leo ]];
+  const selectedCatPatterns = getDistinctRandomNumbers(3, 0, catGoals.length - 1).sort((a, b) => a - b);
+  const catGoal1 = getDistinctRandomNumbers(1, 0, 1);
+  const catGoal2 = getDistinctRandomNumbers(1, 0, 1);
+  const catGoal3 = getDistinctRandomNumbers(1, 0, 1);
+
   const patterns = [ "clovers", "dots", "ferns", "flowers", "stripes", "swirls" ];
   const patternIds = getDistinctRandomNumbers(6, 0, 5);
   const hexPatterns : Hex[] = [
@@ -124,9 +139,9 @@ function SetInitialGameState(): GameState {
     playerColor: boardColor,
     boardHexagons: boardHexagons,
     catGoals: [
-      catGoals[selectedCatPatterns[0]],
-      catGoals[selectedCatPatterns[1]],
-      catGoals[selectedCatPatterns[2]],
+      catGoals[selectedCatPatterns[0]][catGoal1[0]],
+      catGoals[selectedCatPatterns[1]][catGoal2[0]],
+      catGoals[selectedCatPatterns[2]][catGoal3[0]],
     ],
     patterns: hexPatterns,
     goalIds: selectedGoalIds,
@@ -141,63 +156,73 @@ function SetInitialGameState(): GameState {
       allTiles[starterTiles[3]],
       allTiles[starterTiles[4]],
     ],
+    playState: PlayState.START,
+    tilesPlaced: 0,
+    otherPlayerCount: 1,
   };
 }
 
 export const GameContext = createContext<GameContextProps>({
   state: SetInitialGameState(),
-  updateBoard: (hexagons: Hex[]) => {},
-  updatePlayerTiles: (tiles: Tile[]) => {},
+  updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => {},
   setActiveTile: (tile?: Tile | undefined) => {},
-  drawAvailableTileForPool: (id: number) => {},
-  drawFromPool: (tile: Tile) => {},
+  refillPool: (id: number) => {},
 });
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
   state: GameState = SetInitialGameState() as GameState;
   
-  updateBoard = (hexagons: Hex[]): void => {
-      this.setState({ boardHexagons: hexagons });
-  };
-
-  updatePlayerTiles = (tiles: Tile[]): void => {
-    this.setState({ playerTiles: tiles });
+  updateBoardAndPlayerTiles = (hexagons: Hex[], tiles: Tile[]): void => {
+      const tilesPlaced = this.state.tilesPlaced + 1;
+      const playState = tilesPlaced === TILES_PLAYED_END_GAME ? PlayState.END : PlayState.TILE_PLACED;
+      this.setState({ boardHexagons: hexagons, playerTiles: tiles, playState: playState, tilesPlaced: tilesPlaced });
   };
 
   setActiveTile = (tile?: Tile | undefined): void => {
-    this.setState({ activeTile: tile });
+    this.setState({ activeTile: tile, playState: PlayState.TILE_SELECTED });
   };
 
-  drawAvailableTileForPool = (id: number): void => {
+  refillPool = (id: number): void => {
     if (this.state.availableTiles.length === 0) {
       throw new Error("No more tiles available");
     }
 
-    let randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
-    while (this.state.availableTiles[randomIndex].isUsed) {
-      randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
-    }
+    const randomIndex = this.getAvailableTileIndex();
     const tile = this.state.availableTiles[randomIndex];
     this.state.availableTiles[randomIndex].isUsed = true;
     this.state.poolTiles = this.state.poolTiles.filter(tile => tile.id !== id);
     this.state.poolTiles.push(tile);
+    
+    for (let p = 0; p < this.state.otherPlayerCount; p++) {
+      // choose one of the tiles from the pool
+      const fromPool = getDistinctRandomNumbers(1, 0, this.state.poolTiles.length - 1);
+      // do a cat animation to remove one of the pool tiles
+      this.state.poolTiles = this.state.poolTiles.filter(tile => tile.id !== this.state.poolTiles[fromPool[0]].id);
+
+      // refill pool
+      const drawnIndex = this.getAvailableTileIndex();
+      const newTile = this.state.availableTiles[randomIndex];
+      this.state.availableTiles[drawnIndex].isUsed = true;
+      this.state.poolTiles.push(newTile);
+    }
+    
     this.setState({ availableTiles: this.state.availableTiles, poolTiles: this.state.poolTiles });
   };
-
-  drawFromPool = (tile: Tile): void => {
-    if (this.state.playerTiles.length === 1) {
-      this.state.playerTiles.push(tile);
+  
+  getAvailableTileIndex = (): number => {
+    let randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
+    while (this.state.availableTiles[randomIndex].isUsed) {
+      randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
     }
-  };
+    return randomIndex;
+  }
 
   render() {
     const contextValue: GameContextProps = {
       state: this.state,
-      updateBoard: this.updateBoard,
-      updatePlayerTiles: this.updatePlayerTiles,
+      updateBoardAndPlayerTiles: this.updateBoardAndPlayerTiles,
       setActiveTile: this.setActiveTile,
-      drawAvailableTileForPool: this.drawAvailableTileForPool,
-      drawFromPool: this.drawFromPool,
+      refillPool: this.refillPool,
     };
 
     return (

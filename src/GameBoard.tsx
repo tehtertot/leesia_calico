@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Hex, Hexagon, HexUtils, Pattern } from 'react-hexgrid';
+import { Layout, Hex, Hexagon, HexGrid, HexUtils, Pattern } from 'react-hexgrid';
 import { getDistinctRandomNumbers } from './helperMethods';
 import './GameBoard.css';
 import goal1 from './calico tiles/goals/1.png';
@@ -45,7 +45,21 @@ import yellow3 from './calico tiles/tiles/yellow/3.png';
 import yellow4 from './calico tiles/tiles/yellow/4.png';
 import yellow5 from './calico tiles/tiles/yellow/5.png';
 import yellow6 from './calico tiles/tiles/yellow/6.png';
-import { GameContext, GameContextProps } from './GameContext';
+import darkBlueButton from './calico tiles/buttons/darkBlue.png';
+import darkBlueButtonActive from './calico tiles/buttons/darkBlue-active.png';
+import greenButton from './calico tiles/buttons/green.png';
+import greenButtonActive from './calico tiles/buttons/green-active.png';
+import lightBlueButton from './calico tiles/buttons/lightBlue.png';
+import lightBlueButtonActive from './calico tiles/buttons/lightBlue-active.png';
+import pinkButton from './calico tiles/buttons/pink.png';
+import pinkButtonActive from './calico tiles/buttons/pink-active.png';
+import purpleButton from './calico tiles/buttons/purple.png';
+import purpleButtonActive from './calico tiles/buttons/purple-active.png';
+import yellowButton from './calico tiles/buttons/yellow.png';
+import yellowButtonActive from './calico tiles/buttons/yellow-active.png';
+import rainbowButton from './calico tiles/buttons/rainbow.png';
+import rainbowButtonActive from './calico tiles/buttons/rainbow-active.png';
+import { GameContext, GameContextProps, PlayState } from './GameContext';
 
 const config = {
   "width": 1000,
@@ -62,16 +76,15 @@ class GameLayout extends Component<{}, GameContextProps> {
 
   // check whether the spot is available for tile placement
   onClick(event: any, source: any) {
-    const { state, updateBoard, updatePlayerTiles } = this.context;
-    if (!source.props.fill && state.activeTile) {
+    const { state, updateBoardAndPlayerTiles } = this.context;
+    if (!source.props.fill && state.activeTile && state.playState === PlayState.TILE_SELECTED) {
       // fill the spot on the board with the current active tile
       const selectedSpot : Hex | undefined = state.boardHexagons.find(hex => HexUtils.equals(source.state.hex, hex));
       if (selectedSpot) {
         selectedSpot.image = `x-${state.activeTile.color}${state.activeTile.patternId}`;
       }
       state.playerTiles = state.playerTiles.filter(tile => tile.id !== state.activeTile!.id);
-      updateBoard(state.boardHexagons);
-      updatePlayerTiles(state.playerTiles);
+      updateBoardAndPlayerTiles(state.boardHexagons, state.playerTiles);
     }
   }
   
@@ -81,71 +94,84 @@ class GameLayout extends Component<{}, GameContextProps> {
     const size = { x: config.layout.width, y: config.layout.height };
     const innerSize = { x: config.layout.width-.75, y: config.layout.height };
     return (
-      // note: key must be unique between re-renders.
-      // using config.mapProps+i makes a new key when the goal template changes.
-      <React.Fragment>
-        <Layout size={size} flat={false} spacing={1.02} origin={config.origin}>
-        {
-          state.boardHexagons.map((hex, i) => (
-            <Hexagon
-              key={ i }
-              q={ hex.q }
-              r={ hex.r }
-              s={ hex.s }
-              data={ hex }
-              fill={ hex.image != null ? hex.image : undefined }
-              onClick={ (e, h) => this.onClick(e, h) }
-              // onDragOver={ (e, h) => this.onDragOver(e, h) }
-              // onDrop={ (e, h, t) => this.onDrop(e, h, t) }
-             >
-            </Hexagon>
-          ))
-        }
-        </Layout>
-        <Pattern id="goal1" size={innerSize} link={goal1} />
-        <Pattern id="goal2" size={innerSize} link={goal2} />
-        <Pattern id="goal3" size={innerSize} link={goal3} />
-        <Pattern id="goal4" size={innerSize} link={goal4} />
-        <Pattern id="goal5" size={innerSize} link={goal5} />
-        <Pattern id="goal6" size={innerSize} link={goal6} />
+      <div className="game-board">
+        <div className="button-area">
+          <img src={darkBlueButton} draggable={false} />
+          <img src={greenButton} draggable={false} />
+          <img src={lightBlueButton} draggable={false}/>
+          <img src={pinkButton} draggable={false}/>
+          <img src={purpleButton} draggable={false}/>
+          <img src={yellowButton} draggable={false}/>
+          <img src={rainbowButton} draggable={false}/>
+        </div>
+        <div className="board-area" style={{ backgroundImage: `url(${state.selectedBoard})` }}>
+          <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
+            <React.Fragment>
+              <Layout size={size} flat={false} spacing={1.02} origin={config.origin}>
+              {
+                state.boardHexagons.map((hex, i) => (
+                  <Hexagon
+                    key={ i }
+                    q={ hex.q }
+                    r={ hex.r }
+                    s={ hex.s }
+                    data={ hex }
+                    fill={ hex.image != null ? hex.image : undefined }
+                    onClick={ (e, h) => this.onClick(e, h) }
+                    // onDragOver={ (e, h) => this.onDragOver(e, h) }
+                    // onDrop={ (e, h, t) => this.onDrop(e, h, t) }
+                  >
+                  </Hexagon>
+                ))
+              }
+              </Layout>
+              <Pattern id="goal1" size={innerSize} link={goal1} />
+              <Pattern id="goal2" size={innerSize} link={goal2} />
+              <Pattern id="goal3" size={innerSize} link={goal3} />
+              <Pattern id="goal4" size={innerSize} link={goal4} />
+              <Pattern id="goal5" size={innerSize} link={goal5} />
+              <Pattern id="goal6" size={innerSize} link={goal6} />
 
-        <Pattern id="x-darkBlue1" size={innerSize} link={darkBlue1} />
-        <Pattern id="x-darkBlue2" size={innerSize} link={darkBlue2} />
-        <Pattern id="x-darkBlue3" size={innerSize} link={darkBlue3} />
-        <Pattern id="x-darkBlue4" size={innerSize} link={darkBlue4} />
-        <Pattern id="x-darkBlue5" size={innerSize} link={darkBlue5} />
-        <Pattern id="x-darkBlue6" size={innerSize} link={darkBlue6} />
-        <Pattern id="x-green1" size={innerSize} link={green1} />
-        <Pattern id="x-green2" size={innerSize} link={green2} />
-        <Pattern id="x-green3" size={innerSize} link={green3} />
-        <Pattern id="x-green4" size={innerSize} link={green4} />
-        <Pattern id="x-green5" size={innerSize} link={green5} />
-        <Pattern id="x-green6" size={innerSize} link={green6} />
-        <Pattern id="x-lightBlue1" size={innerSize} link={lightBlue1} />
-        <Pattern id="x-lightBlue2" size={innerSize} link={lightBlue2} />
-        <Pattern id="x-lightBlue3" size={innerSize} link={lightBlue3} />
-        <Pattern id="x-lightBlue4" size={innerSize} link={lightBlue4} />
-        <Pattern id="x-lightBlue5" size={innerSize} link={lightBlue5} />
-        <Pattern id="x-lightBlue6" size={innerSize} link={lightBlue6} />
-        <Pattern id="x-pink1" size={innerSize} link={pink1} />
-        <Pattern id="x-pink2" size={innerSize} link={pink2} />
-        <Pattern id="x-pink3" size={innerSize} link={pink3} />
-        <Pattern id="x-pink4" size={innerSize} link={pink4} />
-        <Pattern id="x-pink5" size={innerSize} link={pink5} />
-        <Pattern id="x-pink6" size={innerSize} link={pink6} />
-        <Pattern id="x-purple1" size={innerSize} link={purple1} />
-        <Pattern id="x-purple2" size={innerSize} link={purple2} />
-        <Pattern id="x-purple3" size={innerSize} link={purple3} />
-        <Pattern id="x-purple4" size={innerSize} link={purple4} />
-        <Pattern id="x-purple5" size={innerSize} link={purple5} />
-        <Pattern id="x-purple6" size={innerSize} link={purple6} />
-        <Pattern id="x-yellow1" size={innerSize} link={yellow1} />
-        <Pattern id="x-yellow2" size={innerSize} link={yellow2} />
-        <Pattern id="x-yellow3" size={innerSize} link={yellow3} />
-        <Pattern id="x-yellow4" size={innerSize} link={yellow4} />
-        <Pattern id="x-yellow5" size={innerSize} link={yellow5} />
-        <Pattern id="x-yellow6" size={innerSize} link={yellow6} />
-      </React.Fragment>
+              <Pattern id="x-darkBlue1" size={innerSize} link={darkBlue1} />
+              <Pattern id="x-darkBlue2" size={innerSize} link={darkBlue2} />
+              <Pattern id="x-darkBlue3" size={innerSize} link={darkBlue3} />
+              <Pattern id="x-darkBlue4" size={innerSize} link={darkBlue4} />
+              <Pattern id="x-darkBlue5" size={innerSize} link={darkBlue5} />
+              <Pattern id="x-darkBlue6" size={innerSize} link={darkBlue6} />
+              <Pattern id="x-green1" size={innerSize} link={green1} />
+              <Pattern id="x-green2" size={innerSize} link={green2} />
+              <Pattern id="x-green3" size={innerSize} link={green3} />
+              <Pattern id="x-green4" size={innerSize} link={green4} />
+              <Pattern id="x-green5" size={innerSize} link={green5} />
+              <Pattern id="x-green6" size={innerSize} link={green6} />
+              <Pattern id="x-lightBlue1" size={innerSize} link={lightBlue1} />
+              <Pattern id="x-lightBlue2" size={innerSize} link={lightBlue2} />
+              <Pattern id="x-lightBlue3" size={innerSize} link={lightBlue3} />
+              <Pattern id="x-lightBlue4" size={innerSize} link={lightBlue4} />
+              <Pattern id="x-lightBlue5" size={innerSize} link={lightBlue5} />
+              <Pattern id="x-lightBlue6" size={innerSize} link={lightBlue6} />
+              <Pattern id="x-pink1" size={innerSize} link={pink1} />
+              <Pattern id="x-pink2" size={innerSize} link={pink2} />
+              <Pattern id="x-pink3" size={innerSize} link={pink3} />
+              <Pattern id="x-pink4" size={innerSize} link={pink4} />
+              <Pattern id="x-pink5" size={innerSize} link={pink5} />
+              <Pattern id="x-pink6" size={innerSize} link={pink6} />
+              <Pattern id="x-purple1" size={innerSize} link={purple1} />
+              <Pattern id="x-purple2" size={innerSize} link={purple2} />
+              <Pattern id="x-purple3" size={innerSize} link={purple3} />
+              <Pattern id="x-purple4" size={innerSize} link={purple4} />
+              <Pattern id="x-purple5" size={innerSize} link={purple5} />
+              <Pattern id="x-purple6" size={innerSize} link={purple6} />
+              <Pattern id="x-yellow1" size={innerSize} link={yellow1} />
+              <Pattern id="x-yellow2" size={innerSize} link={yellow2} />
+              <Pattern id="x-yellow3" size={innerSize} link={yellow3} />
+              <Pattern id="x-yellow4" size={innerSize} link={yellow4} />
+              <Pattern id="x-yellow5" size={innerSize} link={yellow5} />
+              <Pattern id="x-yellow6" size={innerSize} link={yellow6} />
+            </React.Fragment>
+          </HexGrid>
+        </div>
+      </div>
     );
   }
 }
