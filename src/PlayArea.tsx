@@ -54,7 +54,8 @@ class SetupArea extends Component {
 
   clickActiveTile(e: any, h: any) {
     const { state, setActiveTile } = this.context;
-    if (state.playerTiles.length === 2 && (state.playState === PlayState.START || state.playState === PlayState.TILE_DRAWN))
+    if (state.playerTiles.length === 2 &&
+      (state.playState === PlayState.START || state.playState === PlayState.TILE_DRAWN))
     {
       setActiveTile(h.data);
     }
