@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/leesia_calico/static/css/main.8624adb1.css",
-    "main.js": "/leesia_calico/static/js/main.a8a8ecf2.js",
+    "main.js": "/leesia_calico/static/js/main.31f79d37.js",
     "static/js/453.e3802b17.chunk.js": "/leesia_calico/static/js/453.e3802b17.chunk.js",
     "static/media/yellow.jpg": "/leesia_calico/static/media/yellow.2de840d5699a4dee112c.jpg",
     "static/media/blue.jpg": "/leesia_calico/static/media/blue.ec6a6d1ce7d83f31db15.jpg",
@@ -31,11 +31,11 @@
     "static/media/stripes.png": "/leesia_calico/static/media/stripes.4cfae477dd28b4cfbc86.png",
     "index.html": "/leesia_calico/index.html",
     "main.8624adb1.css.map": "/leesia_calico/static/css/main.8624adb1.css.map",
-    "main.a8a8ecf2.js.map": "/leesia_calico/static/js/main.a8a8ecf2.js.map",
+    "main.31f79d37.js.map": "/leesia_calico/static/js/main.31f79d37.js.map",
     "453.e3802b17.chunk.js.map": "/leesia_calico/static/js/453.e3802b17.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.8624adb1.css",
-    "static/js/main.a8a8ecf2.js"
+    "static/js/main.31f79d37.js"
   ]
 }
