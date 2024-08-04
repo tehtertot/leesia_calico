@@ -52,6 +52,11 @@ class SetupArea extends Component {
   static contextType = GameContext;
   context!: React.ContextType<typeof GameContext>;
 
+  onClick(e: any, h: any) {
+    const { setActiveTile } = this.context;
+    setActiveTile(h.data);
+  }
+
   onDrop(event: any,
     source: any,
     targetProps: any ) {
@@ -101,14 +106,30 @@ class SetupArea extends Component {
           q={0}
           r={1}
           s={2}
+          data={state.playerTiles[0]}
           fill={this.getTileImageId(state.playerTiles[0])}
+          onClick={(e, h) => this.onClick(e, h)}
           onDrop={ (e, h, t) => this.onDrop(e, h, t) }
           onDragStart={ (e, h) => this.onDragStart(e, h) }
           onDragEnd={ (e, h, t) => this.onDragEnd(e, h, t) }
+          style={{
+            stroke: state.playerTiles[0].id === state.activeTile?.id ? state.playerColor : "none",
+            strokeWidth: state.playerTiles[0].id === state.activeTile?.id ? 5 : 0,
+          }}
           />
         <Hexagon
           key={state.playerTiles[1].id}
-          q={1} r={1} s={2} fill={this.getTileImageId(state.playerTiles[1])} onDragStart={(e, h) => this.onDragStart(e, h) } />
+          q={1}
+          r={1}
+          s={2}
+          data={state.playerTiles[1]}
+          fill={this.getTileImageId(state.playerTiles[1])}
+          onClick={(e, h) => this.onClick(e, h)}
+          style={{
+            stroke: state.playerTiles[1].id === state.activeTile?.id ? state.playerColor : "none",
+            strokeWidth: state.playerTiles[1].id === state.activeTile?.id ? 5 : 0,
+          }}
+        />
         <Pattern id="darkBlue1" size={innerSize} link={darkBlue1} />
         <Pattern id="darkBlue2" size={innerSize} link={darkBlue2} />
         <Pattern id="darkBlue3" size={innerSize} link={darkBlue3} />

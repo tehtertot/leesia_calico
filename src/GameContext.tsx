@@ -19,27 +19,23 @@ import millie from './calico tiles/catGoals/millie.png';
 import rumi from './calico tiles/catGoals/rumi.png';
 import tecolote from './calico tiles/catGoals/tecolote.png';
 import tibbit from './calico tiles/catGoals/tibbit.png';
-// patterns
-import clovers from './calico tiles/patterns/clovers.png';
-import dots from './calico tiles/patterns/dots.png';
-import ferns from './calico tiles/patterns/ferns.png';
-import flowers from './calico tiles/patterns/flowers.png';
-import stripes from './calico tiles/patterns/stripes.png';
-import swirls from './calico tiles/patterns/swirls.png';
 
 export interface GameState {
   goalIds: number[];
   selectedBoard: string;
+  playerColor: string;
   boardHexagons: Hex[];
   catGoals: string[];
   patterns: Hex[];
   availableTiles: Tile[];
   playerTiles: Tile[];
+  activeTile: Tile | undefined;
 }
 
 export interface GameContextProps {
   state: GameState;
   updateBoard: (hexagons: Hex[]) => void;
+  setActiveTile: (tile?: Tile | undefined) => void;
 }
 
 function SetInitialGameState(): GameState {
@@ -48,7 +44,9 @@ function SetInitialGameState(): GameState {
   
   // set the board
   const boards = [ blue, green, purple, yellow ];
-  const randomBoard = boards[Math.floor(Math.random() * boards.length)];
+  const boardIndex = Math.floor(Math.random() * boards.length);
+  const randomBoard = boards[boardIndex];
+  const boardColor = boardIndex === 0 ? "blue" : boardIndex === 1 ? "green" : boardIndex === 2 ? "purple" : "yellow";
   const boardHexagons = [
     { q: 0, r: 0, s: 0, },
     { q: 1, r: 0, s: -1, },
@@ -114,6 +112,7 @@ function SetInitialGameState(): GameState {
 
   return {
     selectedBoard: randomBoard,
+    playerColor: boardColor,
     boardHexagons: boardHexagons,
     catGoals: [
       catGoals[selectedCatPatterns[0]],
@@ -127,12 +126,14 @@ function SetInitialGameState(): GameState {
       allTiles[starterTiles[0]],
       allTiles[starterTiles[1]],
     ],
+    activeTile: undefined,
   };
 }
 
 export const GameContext = createContext<GameContextProps>({
   state: SetInitialGameState(),
   updateBoard: (hexagons: Hex[]) => {},
+  setActiveTile: (tile?: Tile | undefined) => {},
 });
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
@@ -142,10 +143,17 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       this.setState({ boardHexagons: hexagons });
   };
 
+  setActiveTile = (tile?: Tile | undefined): void => {
+    console.log("tile incoming!")
+    console.log(tile)
+    this.setState({ activeTile: tile });
+  };
+
   render() {
     const contextValue: GameContextProps = {
       state: this.state,
       updateBoard: this.updateBoard,
+      setActiveTile: this.setActiveTile,
     };
 
     return (
