@@ -37,7 +37,7 @@ export interface GameState {
   boardHexagons: Hex[];
   catGoals: string[];
   patterns: Hex[];
-  availableTiles: Tile[];
+  allTiles: Tile[];
   playerTiles: Tile[];
   poolTiles: Tile[];
   activeTile: Tile | undefined;
@@ -145,7 +145,7 @@ function SetInitialGameState(): GameState {
     ],
     patterns: hexPatterns,
     goalIds: selectedGoalIds,
-    availableTiles: allTiles,
+    allTiles: allTiles,
     playerTiles: [
       allTiles[starterTiles[0]],
       allTiles[starterTiles[1]],
@@ -182,37 +182,40 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
     this.setState({ activeTile: tile, playState: PlayState.TILE_SELECTED });
   };
 
-  refillPool = (id: number): void => {
-    if (this.state.availableTiles.length === 0) {
+  refillPool = (index: number): void => {
+    if (this.state.allTiles.length === 0) {
       throw new Error("No more tiles available");
     }
 
+    const playerChosenTile = this.state.poolTiles.splice(index, 1);
+    this.state.playerTiles.push(playerChosenTile[0]);
+
+    // draw a new tile for the pool
     const randomIndex = this.getAvailableTileIndex();
-    const tile = this.state.availableTiles[randomIndex];
-    this.state.availableTiles[randomIndex].isUsed = true;
-    this.state.poolTiles = this.state.poolTiles.filter(tile => tile.id !== id);
+    this.state.allTiles[randomIndex].isUsed = true;
+    const tile = this.state.allTiles[randomIndex];
     this.state.poolTiles.push(tile);
+    // console.log(`current pool tiles: ${this.state.poolTiles.map(tile => tile.id)}`);
+    // console.log(`current pool tiles: ${this.state.poolTiles.map(tile => tile.color + tile.patternId)}`);
+    // console.log(`current pool tiles: ${this.state.poolTiles.map(tile => tile.isUsed)}`);
     
     for (let p = 0; p < this.state.otherPlayerCount; p++) {
-      // choose one of the tiles from the pool
-      const fromPool = getDistinctRandomNumbers(1, 0, this.state.poolTiles.length - 1);
+      const otherPlayerChosenTile = this.state.poolTiles.splice(index, 1);
+      
+      const newTileIndex = this.getAvailableTileIndex();
+      this.state.allTiles[newTileIndex].isUsed = true;
+      const newTile = this.state.allTiles[newTileIndex];
       // do a cat animation to remove one of the pool tiles
-      this.state.poolTiles = this.state.poolTiles.filter(tile => tile.id !== this.state.poolTiles[fromPool[0]].id);
-
-      // refill pool
-      const drawnIndex = this.getAvailableTileIndex();
-      const newTile = this.state.availableTiles[randomIndex];
-      this.state.availableTiles[drawnIndex].isUsed = true;
       this.state.poolTiles.push(newTile);
     }
     
-    this.setState({ availableTiles: this.state.availableTiles, poolTiles: this.state.poolTiles });
+    this.setState({ playerTiles: this.state.playerTiles, poolTiles: this.state.poolTiles, allTiles: this.state.allTiles, playState: PlayState.TILE_DRAWN });
   };
-  
+
   getAvailableTileIndex = (): number => {
-    let randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
-    while (this.state.availableTiles[randomIndex].isUsed) {
-      randomIndex = Math.floor(Math.random() * this.state.availableTiles.length);
+    let randomIndex = Math.floor(Math.random() * this.state.allTiles.length);
+    while (this.state.allTiles[randomIndex].isUsed) {
+      randomIndex = Math.floor(Math.random() * this.state.allTiles.length);
     }
     return randomIndex;
   }

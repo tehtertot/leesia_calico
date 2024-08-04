@@ -61,12 +61,11 @@ class SetupArea extends Component {
     }
   }
 
-  selectPoolTile(e: any, h: any) {
+  selectPoolTile(e: any, h: any, i: number) {
     const { state, refillPool: refillPool } = this.context;
     if (state.playerTiles.length === 1)
     {
-      state.playerTiles.push(h.data);
-      refillPool(h.data.id);
+      refillPool(i);
     }
   }
 
@@ -79,6 +78,8 @@ class SetupArea extends Component {
     const spacing = config.layout.spacing;
     const innerSize = { x: config.layout.width-.75, y: config.layout.height };
     const { state } = this.context as GameContextProps;
+    // console.log(`current player tiles: ${state.playerTiles.map(tile => tile.id)}`);
+    // console.log(`current pool tiles: ${state.poolTiles.map(tile => tile.id)}`);
     return (
       <Layout size={size} flat={false} spacing={spacing} origin={config.origin}>
         <Hexagon
@@ -118,7 +119,7 @@ class SetupArea extends Component {
           s={2}
           data={state.poolTiles[0]}
           fill={this.getTileImageId(state.poolTiles[0])}
-          onClick={(e, h) => this.selectPoolTile(e, h)}
+          onClick={(e, h) => this.selectPoolTile(e, h, 0)}
         />
         <Hexagon
           key={state.poolTiles[1].id}
@@ -127,7 +128,7 @@ class SetupArea extends Component {
           s={2}
           data={state.poolTiles[1]}
           fill={this.getTileImageId(state.poolTiles[1])}
-          onClick={(e, h) => this.selectPoolTile(e, h)}
+          onClick={(e, h) => this.selectPoolTile(e, h, 1)}
         />
         <Hexagon
           key={state.poolTiles[2].id}
@@ -136,7 +137,7 @@ class SetupArea extends Component {
           s={2}
           data={state.poolTiles[2]}
           fill={this.getTileImageId(state.poolTiles[2])}
-          onClick={(e, h) => this.selectPoolTile(e, h)}
+          onClick={(e, h) => this.selectPoolTile(e, h, 2)}
         />
         <Pattern id="darkBlue1" size={innerSize} link={darkBlue1} />
         <Pattern id="darkBlue2" size={innerSize} link={darkBlue2} />
