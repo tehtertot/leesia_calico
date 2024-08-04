@@ -46,8 +46,6 @@ const config = {
   "origin": { "x": -450, "y": -60 },
 }
 
-const idToPattern = ["", "dots", "ferns", "flowers", "clovers", "stripes", "swirls"];
-
 class SetupArea extends Component {
   static contextType = GameContext;
   context!: React.ContextType<typeof GameContext>;
@@ -55,7 +53,8 @@ class SetupArea extends Component {
   clickActiveTile(e: any, h: any) {
     const { state, setActiveTile } = this.context;
     if (state.playerTiles.length === 2 &&
-      (state.playState === PlayState.START || state.playState === PlayState.TILE_DRAWN))
+      state.activeButton === undefined &&
+      (state.playState === PlayState.START || state.playState === PlayState.TILE_SELECTED || state.playState === PlayState.TILE_DRAWN))
     {
       setActiveTile(h.data);
     }
@@ -78,8 +77,6 @@ class SetupArea extends Component {
     const spacing = config.layout.spacing;
     const innerSize = { x: config.layout.width-.75, y: config.layout.height };
     const { state } = this.context as GameContextProps;
-    // console.log(`current player tiles: ${state.playerTiles.map(tile => tile.id)}`);
-    // console.log(`current pool tiles: ${state.poolTiles.map(tile => tile.id)}`);
     return (
       <Layout size={size} flat={false} spacing={spacing} origin={config.origin}>
         <Hexagon

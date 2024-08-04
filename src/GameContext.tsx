@@ -30,6 +30,30 @@ export enum PlayState {
   END,
 }
 
+export enum ButtonColor {
+  DARK_BLUE = "darkBlue",
+  GREEN = "green",
+  LIGHT_BLUE = "lightBlue",
+  PINK = "pink",
+  PURPLE = "purple",
+  YELLOW = "yellow",
+  RAINBOW = "rainbow",
+}
+
+export class Position {
+  x: number;
+  y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+type ButtonsPlayed = {
+  [key: string] : Position[];
+}
+
 export interface GameState {
   goalIds: number[];
   selectedBoard: string;
@@ -44,6 +68,8 @@ export interface GameState {
   playState: PlayState;
   tilesPlaced: number;
   otherPlayerCount: number;
+  activeButton: string | undefined;
+  buttonsPlayed: ButtonsPlayed;
 }
 
 export interface GameContextProps {
@@ -51,6 +77,8 @@ export interface GameContextProps {
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => void;
   setActiveTile: (tile?: Tile | undefined) => void;
   refillPool: (id: number) => void;
+  setActiveButton: (button: string | undefined) => void;
+  addButton: (color: string, position: Position) => void;
 }
 
 function SetInitialGameState(): GameState {
@@ -70,8 +98,8 @@ function SetInitialGameState(): GameState {
     { q: 4, r: 0, s: -4, },
     
     { q: -1, r: 1, s: 0, },
-    { q: 0, r: 1, s: 0, },
-    { q: 1, r: 1, s: 0, image: goals[selectedGoalIds[0]], blocked: true },
+    { q: 0, r: 1, s: -1, },
+    { q: 1, r: 1, s: -2, image: goals[selectedGoalIds[0]], blocked: true },
     { q: 2, r: 1, s: -3, },
     { q: 3, r: 1, s: -4, },
     
@@ -159,6 +187,16 @@ function SetInitialGameState(): GameState {
     playState: PlayState.START,
     tilesPlaced: 0,
     otherPlayerCount: 1,
+    activeButton: undefined,
+    buttonsPlayed: {
+      darkBlue: [],
+      green: [],
+      lightBlue: [],
+      pink: [],
+      purple: [],
+      yellow: [],
+      rainbow: [],
+    }
   };
 }
 
@@ -167,6 +205,8 @@ export const GameContext = createContext<GameContextProps>({
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => {},
   setActiveTile: (tile?: Tile | undefined) => {},
   refillPool: (id: number) => {},
+  setActiveButton: (button: string | undefined) => {},
+  addButton: (color: string, position: Position) => {},
 });
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
@@ -175,11 +215,26 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
   updateBoardAndPlayerTiles = (hexagons: Hex[], tiles: Tile[]): void => {
       const tilesPlaced = this.state.tilesPlaced + 1;
       const playState = tilesPlaced === TILES_PLAYED_END_GAME ? PlayState.END : PlayState.TILE_PLACED;
-      this.setState({ boardHexagons: hexagons, playerTiles: tiles, playState: playState, tilesPlaced: tilesPlaced });
+      this.setState({
+        boardHexagons: hexagons,
+        activeTile: undefined,
+        playerTiles: tiles,
+        playState: playState,
+        tilesPlaced: tilesPlaced });
   };
 
   setActiveTile = (tile?: Tile | undefined): void => {
     this.setState({ activeTile: tile, playState: PlayState.TILE_SELECTED });
+  };
+
+  setActiveButton = (button: string | undefined): void => {
+    this.setState({ activeButton: button });
+  };
+
+  addButton = (color: string, position: Position): void => {
+    const buttonsPlayed = this.state.buttonsPlayed;
+    buttonsPlayed[color].push(position);
+    this.setState({ buttonsPlayed: buttonsPlayed, activeButton: undefined });
   };
 
   refillPool = (index: number): void => {
@@ -195,9 +250,6 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
     this.state.allTiles[randomIndex].isUsed = true;
     const tile = this.state.allTiles[randomIndex];
     this.state.poolTiles.push(tile);
-    // console.log(`current pool tiles: ${this.state.poolTiles.map(tile => tile.id)}`);
-    // console.log(`current pool tiles: ${this.state.poolTiles.map(tile => tile.color + tile.patternId)}`);
-    // console.log(`current pool tiles: ${this.state.poolTiles.map(tile => tile.isUsed)}`);
     
     for (let p = 0; p < this.state.otherPlayerCount; p++) {
       const otherPlayerChosenTile = this.state.poolTiles.splice(index, 1);
@@ -225,7 +277,9 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       state: this.state,
       updateBoardAndPlayerTiles: this.updateBoardAndPlayerTiles,
       setActiveTile: this.setActiveTile,
+      setActiveButton: this.setActiveButton,
       refillPool: this.refillPool,
+      addButton: this.addButton,
     };
 
     return (

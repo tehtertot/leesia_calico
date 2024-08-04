@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Hex, Hexagon, HexGrid, HexUtils, Pattern } from 'react-hexgrid';
-import { getDistinctRandomNumbers } from './helperMethods';
+import { Layout, Hex, Hexagon, HexGrid, HexUtils, Pattern, Text } from 'react-hexgrid';
 import './GameBoard.css';
 import goal1 from './calico tiles/goals/1.png';
 import goal2 from './calico tiles/goals/2.png';
@@ -8,7 +7,6 @@ import goal3 from './calico tiles/goals/3.png';
 import goal4 from './calico tiles/goals/4.png';
 import goal5 from './calico tiles/goals/5.png';
 import goal6 from './calico tiles/goals/6.png';
-import { HexagonProps } from 'react-hexgrid/lib/Hexagon/Hexagon';
 import darkBlue1 from './calico tiles/tiles/darkBlue/1.png';
 import darkBlue2 from './calico tiles/tiles/darkBlue/2.png';
 import darkBlue3 from './calico tiles/tiles/darkBlue/3.png';
@@ -59,7 +57,7 @@ import yellowButton from './calico tiles/buttons/yellow.png';
 import yellowButtonActive from './calico tiles/buttons/yellow-active.png';
 import rainbowButton from './calico tiles/buttons/rainbow.png';
 import rainbowButtonActive from './calico tiles/buttons/rainbow-active.png';
-import { GameContext, GameContextProps, PlayState } from './GameContext';
+import { ButtonColor, GameContext, GameContextProps, PlayState } from './GameContext';
 
 const config = {
   "width": 1000,
@@ -70,13 +68,27 @@ const config = {
   "mapProps": [4]
 }
 
+type ColorImagesMap = {
+  [key: string]: [string, string];
+}
+
+const colorImagesMap: ColorImagesMap = {
+  "darkBlue": [darkBlueButton, darkBlueButtonActive],
+  "green": [greenButton, greenButtonActive],
+  "lightBlue": [lightBlueButton, lightBlueButtonActive],
+  "pink": [pinkButton, pinkButtonActive],
+  "purple": [purpleButton, purpleButtonActive],
+  "yellow": [yellowButton, yellowButtonActive],
+  "rainbow": [rainbowButton, rainbowButtonActive],
+}
+
 class GameLayout extends Component<{}, GameContextProps> {
   static contextType = GameContext;
   context!: React.ContextType<typeof GameContext>;
 
   // check whether the spot is available for tile placement
   onClick(event: any, source: any) {
-    const { state, updateBoardAndPlayerTiles } = this.context;
+    const { state, updateBoardAndPlayerTiles, addButton } = this.context;
     if (!source.props.fill && state.activeTile && state.playState === PlayState.TILE_SELECTED) {
       // fill the spot on the board with the current active tile
       const selectedSpot : Hex | undefined = state.boardHexagons.find(hex => HexUtils.equals(source.state.hex, hex));
@@ -85,6 +97,26 @@ class GameLayout extends Component<{}, GameContextProps> {
       }
       state.playerTiles = state.playerTiles.filter(tile => tile.id !== state.activeTile!.id);
       updateBoardAndPlayerTiles(state.boardHexagons, state.playerTiles);
+    }
+    else if (source.props.fill && state.activeButton && !source.props.fill.startsWith('goal')) {
+      const heights = [333, 417, 503, 587, 671];
+      const widths = [
+        [288, 388, 488, 588, 688],
+        [238, 338, 438, 538, 638],
+      ];
+      const height = heights[source.state.hex.r];
+      const widthsIdx = source.state.hex.r % 2 === 0 ? 0 : 1;
+      let width = widths[widthsIdx][Math.abs(source.state.hex.s)];
+      width = state.activeButton === 'rainbow' ? width - 10 : width + 5;
+      addButton(state.activeButton, { x: width, y: height });
+    }
+  }
+
+  setActiveButton(color: ButtonColor) {
+    const { state, setActiveButton } = this.context;
+    if (!state.activeTile) {
+      const updatedColor = state.activeButton === color ? undefined : color;
+      setActiveButton(updatedColor);
     }
   }
   
@@ -96,15 +128,27 @@ class GameLayout extends Component<{}, GameContextProps> {
     return (
       <div className="game-board">
         <div className="button-area">
-          <img src={darkBlueButton} draggable={false} />
-          <img src={greenButton} draggable={false} />
-          <img src={lightBlueButton} draggable={false}/>
-          <img src={pinkButton} draggable={false}/>
-          <img src={purpleButton} draggable={false}/>
-          <img src={yellowButton} draggable={false}/>
-          <img src={rainbowButton} draggable={false}/>
+          {
+            Object.values(ButtonColor).map((color) => (
+              <img
+                key={color}
+                src={state.activeButton === color ? colorImagesMap[color][1] : colorImagesMap[color][0]}
+                draggable={false}
+                onClick={() => this.setActiveButton(color)}
+              />
+            ))
+          }
         </div>
         <div className="board-area" style={{ backgroundImage: `url(${state.selectedBoard})` }}>
+        {state.buttonsPlayed && Object.entries(state.buttonsPlayed).map(([color, positions], index) => (
+          positions.map((position, index) => (
+            <img
+              key={ color + index }
+              src={colorImagesMap[color][0]}
+              style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '4%' }}
+              />
+            ))
+          ))}
           <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
             <React.Fragment>
               <Layout size={size} flat={false} spacing={1.02} origin={config.origin}>
@@ -118,8 +162,6 @@ class GameLayout extends Component<{}, GameContextProps> {
                     data={ hex }
                     fill={ hex.image != null ? hex.image : undefined }
                     onClick={ (e, h) => this.onClick(e, h) }
-                    // onDragOver={ (e, h) => this.onDragOver(e, h) }
-                    // onDrop={ (e, h, t) => this.onDrop(e, h, t) }
                   >
                   </Hexagon>
                 ))
