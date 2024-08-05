@@ -72,6 +72,7 @@ export interface GameState {
   activeCatGoal: string | undefined;
   buttonsPlayed: ButtonsPlayed;
   catsPlayed: ButtonsPlayed;
+  showScoreModal: boolean;
 }
 
 export interface GameContextProps {
@@ -83,6 +84,7 @@ export interface GameContextProps {
   setActiveCatGoal: (catGoal: string | undefined) => void;
   addButton: (color: string, position: Position) => void;
   addCatButton: (cat: string, position: Position) => void;
+  setShowScoreModal: (show: boolean) => void;
 }
 
 function SetInitialGameState(): GameState {
@@ -214,6 +216,7 @@ function SetInitialGameState(): GameState {
       gwen: [],
       leo: [],
     },
+    showScoreModal: true,
   };
 }
 
@@ -226,6 +229,7 @@ export const GameContext = createContext<GameContextProps>({
   addButton: (color: string, position: Position) => {},
   setActiveCatGoal: (catGoal: string | undefined) => {},
   addCatButton: (cat: string, position: Position) => {},
+  setShowScoreModal: (show: boolean) => {},
 });
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
@@ -288,8 +292,16 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       this.state.poolTiles.push(newTile);
     }
     
-    this.setState({ playerTiles: this.state.playerTiles, poolTiles: this.state.poolTiles, allTiles: this.state.allTiles, playState: PlayState.TILE_DRAWN });
+    this.setState({
+      playerTiles: this.state.playerTiles,
+      poolTiles: this.state.poolTiles,
+      allTiles: this.state.allTiles,
+      playState: PlayState.TILE_DRAWN });
   };
+
+  setShowScoreModal = (show: boolean): void => {
+    this.setState({ showScoreModal: show });
+  }
 
   getAvailableTileIndex = (): number => {
     let randomIndex = Math.floor(Math.random() * this.state.allTiles.length);
@@ -309,6 +321,7 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       addButton: this.addButton,
       addCatButton: this.addCatButton,
       setActiveCatGoal: this.setActiveCatGoal,
+      setShowScoreModal: this.setShowScoreModal,
     };
 
     return (

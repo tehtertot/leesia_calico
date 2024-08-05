@@ -8,6 +8,7 @@ import flowers from './calico tiles/patterns/flowers.png';
 import stripes from './calico tiles/patterns/stripes.png';
 import swirls from './calico tiles/patterns/swirls.png';
 import { GameContext, GameContextProps } from './GameContext';
+import { getCatNameFromImagePath } from './helperMethods';
 
 const config = {
   "layout": { "width": 45, "height": 45, "spacing": 1 },
@@ -21,15 +22,10 @@ class SetupArea extends Component {
   setActiveCatButton(cat: string) {
     const { state, setActiveCatGoal } = this.context;
     if (!state.activeTile && !state.activeButton) {
-      const catName = this.getCatNameFromImagePath(cat);
+      const catName = getCatNameFromImagePath(cat);
       const catGoal = state.activeCatGoal === catName ? undefined : catName;
       setActiveCatGoal(catGoal);
     }
-  }
-
-  getCatNameFromImagePath(imagePath: string): string {
-    const splitPath = imagePath.split('/');
-    return splitPath[splitPath.length - 1].split('.')[0];
   }
 
   render() {
@@ -37,8 +33,6 @@ class SetupArea extends Component {
     const spacing = config.layout.spacing;
     const innerSize = { x: config.layout.width-.75, y: config.layout.height };
     const { state } = this.context;
-    const catGoals = state.catGoals;
-    console.log(catGoals);
     return (
       <div className="App">
         <div className="setup-area">

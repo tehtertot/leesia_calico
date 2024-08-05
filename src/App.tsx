@@ -8,6 +8,7 @@ import PlayArea from './PlayArea';
 import SetupArea from './SetupArea';
 
 import { GameProvider } from './GameContext';
+import ScoreModal from './ScoreModal';
 
 class App extends Component {
   static contextType = GameContext;
@@ -24,6 +25,7 @@ class App extends Component {
             <PlayArea />
           </HexGrid>
         </div>
+        <ScoreModal />
       </GameProvider>
     );
   }
