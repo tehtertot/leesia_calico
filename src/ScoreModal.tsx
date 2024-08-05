@@ -1,3 +1,4 @@
+import './ScoreModal.css';
 import React, { Component } from 'react';
 import { GameContext, GameContextProps } from './GameContext';
 import buttonsScoreImg from './calico tiles/scoring/buttons-scoring.png';
@@ -40,6 +41,7 @@ interface IScore {
   buttonsScore: number;
   cats: CatPointsScoreType;
   bonusTiles: LayoutTileScoreType[];
+  total: number;
 }
 
 type CatPointsScoreType = { [key: string]: { count: number, points: number } };
@@ -58,18 +60,20 @@ class ScoreModal extends Component<{}, GameContextProps> {
       buttonsScore: 0,
       cats: {},
       bonusTiles: [],
+      total: 0,
     };
   }
   
-
   calculateScore() {
     const { state } = this.context;
-    this.calculateButtonScore();
-    this.calculateCatScore();
-    this.calculateLayoutTileScores();
+    const buttonPoints = this.calculateButtonScore();
+    const catPoints = this.calculateCatScore();
+    const layoutPoints = this.calculateLayoutTileScores();
+    const total = buttonPoints + catPoints + layoutPoints;
+    this.score.total = total;
   }
   
-  calculateButtonScore(): void {
+  calculateButtonScore(): number {
     const { state } = this.context;
     let points = 0;
     let count = 0;
@@ -79,28 +83,34 @@ class ScoreModal extends Component<{}, GameContextProps> {
     });
     this.score.buttonsCount = count;
     this.score.buttonsScore = points;
+    return points;
   }
   
-  calculateCatScore(): void {
+  calculateCatScore(): number {
     const { state } = this.context;
     const catGoals = state.catGoals;
     const catScore: CatPointsScoreType = {};
+    let totalPoints = 0;
     catGoals.forEach((catGoal) => {
       const catName = getCatNameFromImagePath(catGoal);
       const count = state.catsPlayed[catName].length;
       const points = CatPointsMap[catName][0] * count;
+      totalPoints += points;
       this.score.cats[catName] = {
         count,
         points,
       };
     });
+    return totalPoints;
   }
   
-  calculateLayoutTileScores(): void {
+  calculateLayoutTileScores(): number {
     const { state } = this.context;
+    this.score.bonusTiles = [];
     this.score.bonusTiles.push(this.calculateLayoutTileScore(0, state.goalIds[0]));
     this.score.bonusTiles.push(this.calculateLayoutTileScore(1, state.goalIds[1]));
     this.score.bonusTiles.push(this.calculateLayoutTileScore(2, state.goalIds[2]));
+    return this.score.bonusTiles.reduce((acc, cur) => acc + cur[1], 0);
   }
 
   calculateLayoutTileScore(goalIndex: number, goalId: number): LayoutTileScoreType {
@@ -213,46 +223,51 @@ class ScoreModal extends Component<{}, GameContextProps> {
 
   render() {
     this.calculateScore();
-    const { setShowScoreModal } = this.context;
+    const { state, setShowScoreModal } = this.context;
+    if (!state.showScoreModal) {
+      return null;
+    }
+
     return (
       <div className="score-modal">
         <div className="score-modal-content">
-          <span className="close" onClick={() => setShowScoreModal(false)}>&times;</span>
+          <div className="close" onClick={() => setShowScoreModal(false)}>&times;</div>
           <h2>Score</h2>
           <table>
             <thead>
               <tr>
-                <th>Item</th>
-                <th>Count</th>
+                <th className="col1">Item</th>
+                <th className="col2">Count</th>
                 <th>Score</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Buttons <br /><img key={'buttons'} src={buttonsScoreImg} width={'80px'} /></td>
-                <td>{this.score.buttonsCount}</td>
+                <td className="col1">Buttons <br /><img key={'buttons'} src={buttonsScoreImg} width={'80px'} /></td>
+                <td className="col2">{this.score.buttonsCount}</td>
                 <td>{this.score.buttonsScore}</td>
               </tr>
               {
                 Object.entries(this.score.cats).map(([catName, score]) => (
-                  <tr>
-                    <td>{catName}<br /><img key={`score-${catName}`} src={CatPointsMap[catName][1]} width={'80px'} /></td>
-                    <td>{score.count}</td>
-                    <td>{score.points}</td>
+                  <tr key={`trc-${catName}`}>
+                    <td className="col1" key={`tdc1-${catName}`}>{catName}<br /><img key={`score-${catName}`} src={CatPointsMap[catName][1]} width={'80px'} /></td>
+                    <td className="col2" key={`tdc2-${catName}`}>{score.count}</td>
+                    <td key={`tdc3-${catName}`}>{score.points}</td>
                   </tr>
                 ))
               }
               {
                 Object.entries(this.score.bonusTiles).map(([index, score]) => (
-                  <tr>
-                    <td><img key={`layout-${index}`} src={score[0]} width={'80px'} /></td>
-                    <td></td>
-                    <td>{score[1]}</td>
+                  <tr key={`tr-${index}`}>
+                    <td className="col1" key={`td1-${index}`}><img key={`layout-${index}`} src={score[0]} width={'80px'} /></td>
+                    <td className="col2" key={`td2-${index}`}></td>
+                    <td key={`td3-${index}`}>{score[1]}</td>
                   </tr>
                 ))
               }
             </tbody>
           </table>
+          <h2>Final Score: {this.score.total}</h2>
         </div>
       </div>
     );

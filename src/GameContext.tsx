@@ -20,7 +20,7 @@ import rumi from './calico tiles/catGoals/rumi.png';
 import tecolote from './calico tiles/catGoals/tecolote.png';
 import tibbit from './calico tiles/catGoals/tibbit.png';
 
-const TILES_PLAYED_END_GAME : number = 21;
+const TILES_PLAYED_END_GAME : number = 22;
 
 export enum PlayState {
   START,
@@ -216,7 +216,7 @@ function SetInitialGameState(): GameState {
       gwen: [],
       leo: [],
     },
-    showScoreModal: true,
+    showScoreModal: false,
   };
 }
 
@@ -243,7 +243,8 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
         activeTile: undefined,
         playerTiles: tiles,
         playState: playState,
-        tilesPlaced: tilesPlaced });
+        tilesPlaced: tilesPlaced,
+        showScoreModal: playState === PlayState.END });
   };
 
   setActiveTile = (tile?: Tile | undefined): void => {
@@ -300,6 +301,7 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
   };
 
   setShowScoreModal = (show: boolean): void => {
+    console.log("setShowScoreModal", show);
     this.setState({ showScoreModal: show });
   }
 
