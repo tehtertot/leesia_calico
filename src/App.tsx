@@ -24,8 +24,8 @@ class App extends Component {
           <HexGrid width={1200} height={120} >
             <PlayArea />
           </HexGrid>
-          {state.playState === PlayState.END && <button color="green" onClick={() => setShowScoreModal(true)}>Show Score</button>}
         </div>
+        {<button color="green" onClick={() => setShowScoreModal(true)}>Show Score</button>}
         <ScoreModal />
       </GameProvider>
     );
