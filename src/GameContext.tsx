@@ -1,4 +1,4 @@
-import React, { Component, createContext, ReactNode } from 'react';
+import { Component, createContext, ReactNode } from 'react';
 import { Tile } from './Tile';
 import { Hex } from 'react-hexgrid';
 import { getDistinctRandomNumbers } from './helperMethods';
@@ -301,7 +301,7 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
   };
 
   setShowScoreModal = (show: boolean): void => {
-    console.log("setShowScoreModal", show);
+    console.log("setShowScoreModal from context", show);
     this.setState({ showScoreModal: show });
   }
 

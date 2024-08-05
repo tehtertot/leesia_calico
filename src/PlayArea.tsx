@@ -1,7 +1,6 @@
 import './SetupArea.css';
-import React, { Component, startTransition } from 'react';
-import { Layout, Hexagon, HexUtils, Pattern, Hex } from 'react-hexgrid';
-import { getDistinctRandomNumbers } from './helperMethods';
+import React, { Component } from 'react';
+import { Layout, Hexagon, HexGrid, Pattern } from 'react-hexgrid';
 import darkBlue1 from './calico tiles/tiles/darkBlue/1.png';
 import darkBlue2 from './calico tiles/tiles/darkBlue/2.png';
 import darkBlue3 from './calico tiles/tiles/darkBlue/3.png';
@@ -77,103 +76,108 @@ class SetupArea extends Component {
     const size = { x: config.layout.width, y: config.layout.height };
     const spacing = config.layout.spacing;
     const innerSize = { x: config.layout.width-.75, y: config.layout.height };
-    const { state } = this.context as GameContextProps;
+    const { state, setShowScoreModal } = this.context as GameContextProps;
     return (
-      <Layout size={size} flat={false} spacing={spacing} origin={config.origin}>
-        <Hexagon
-          key={state.playerTiles[0].id}
-          q={0}
-          r={1}
-          s={2}
-          data={state.playerTiles[0]}
-          fill={this.getTileImageId(state.playerTiles[0])}
-          onClick={(e, h) => this.clickActiveTile(e, h)}
-          style={{
-            stroke: state.playerTiles[0].id === state.activeTile?.id ? state.playerColor : "none",
-            strokeWidth: state.playerTiles[0].id === state.activeTile?.id ? 5 : 0,
-          }}
-        />
-        {state.playerTiles[1]? 
-          <Hexagon
-            key={state.playerTiles[1].id}
-            q={1}
-            r={1}
-            s={2}
-            data={state.playerTiles[1]}
-            fill={this.getTileImageId(state.playerTiles[1])}
-            onClick={(e, h) => this.clickActiveTile(e, h)}
-            style={{
-              stroke: state.playerTiles[1].id === state.activeTile?.id ? state.playerColor : "none",
-              strokeWidth: state.playerTiles[1].id === state.activeTile?.id ? 5 : 0,
-            }}
-          />
-          : <div />
-        }
+      <div className="play-area">
+        <HexGrid width={1200} height={120} >
+          <Layout size={size} flat={false} spacing={spacing} origin={config.origin}>
+            <Hexagon
+              key={state.playerTiles[0].id}
+              q={0}
+              r={1}
+              s={2}
+              data={state.playerTiles[0]}
+              fill={this.getTileImageId(state.playerTiles[0])}
+              onClick={(e, h) => this.clickActiveTile(e, h)}
+              style={{
+                stroke: state.playerTiles[0].id === state.activeTile?.id ? state.playerColor : "none",
+                strokeWidth: state.playerTiles[0].id === state.activeTile?.id ? 5 : 0,
+              }}
+            />
+            {state.playerTiles[1]? 
+              <Hexagon
+                key={state.playerTiles[1].id}
+                q={1}
+                r={1}
+                s={2}
+                data={state.playerTiles[1]}
+                fill={this.getTileImageId(state.playerTiles[1])}
+                onClick={(e, h) => this.clickActiveTile(e, h)}
+                style={{
+                  stroke: state.playerTiles[1].id === state.activeTile?.id ? state.playerColor : "none",
+                  strokeWidth: state.playerTiles[1].id === state.activeTile?.id ? 5 : 0,
+                }}
+              />
+              : <div />
+            }
 
-        <Hexagon
-          key={state.poolTiles[0].id}
-          q={4}
-          r={1}
-          s={2}
-          data={state.poolTiles[0]}
-          fill={this.getTileImageId(state.poolTiles[0])}
-          onClick={(e, h) => this.selectPoolTile(e, h, 0)}
-        />
-        <Hexagon
-          key={state.poolTiles[1].id}
-          q={5}
-          r={1}
-          s={2}
-          data={state.poolTiles[1]}
-          fill={this.getTileImageId(state.poolTiles[1])}
-          onClick={(e, h) => this.selectPoolTile(e, h, 1)}
-        />
-        <Hexagon
-          key={state.poolTiles[2].id}
-          q={6}
-          r={1}
-          s={2}
-          data={state.poolTiles[2]}
-          fill={this.getTileImageId(state.poolTiles[2])}
-          onClick={(e, h) => this.selectPoolTile(e, h, 2)}
-        />
-        <Pattern id="darkBlue1" size={innerSize} link={darkBlue1} />
-        <Pattern id="darkBlue2" size={innerSize} link={darkBlue2} />
-        <Pattern id="darkBlue3" size={innerSize} link={darkBlue3} />
-        <Pattern id="darkBlue4" size={innerSize} link={darkBlue4} />
-        <Pattern id="darkBlue5" size={innerSize} link={darkBlue5} />
-        <Pattern id="darkBlue6" size={innerSize} link={darkBlue6} />
-        <Pattern id="green1" size={innerSize} link={green1} />
-        <Pattern id="green2" size={innerSize} link={green2} />
-        <Pattern id="green3" size={innerSize} link={green3} />
-        <Pattern id="green4" size={innerSize} link={green4} />
-        <Pattern id="green5" size={innerSize} link={green5} />
-        <Pattern id="green6" size={innerSize} link={green6} />
-        <Pattern id="lightBlue1" size={innerSize} link={lightBlue1} />
-        <Pattern id="lightBlue2" size={innerSize} link={lightBlue2} />
-        <Pattern id="lightBlue3" size={innerSize} link={lightBlue3} />
-        <Pattern id="lightBlue4" size={innerSize} link={lightBlue4} />
-        <Pattern id="lightBlue5" size={innerSize} link={lightBlue5} />
-        <Pattern id="lightBlue6" size={innerSize} link={lightBlue6} />
-        <Pattern id="pink1" size={innerSize} link={pink1} />
-        <Pattern id="pink2" size={innerSize} link={pink2} />
-        <Pattern id="pink3" size={innerSize} link={pink3} />
-        <Pattern id="pink4" size={innerSize} link={pink4} />
-        <Pattern id="pink5" size={innerSize} link={pink5} />
-        <Pattern id="pink6" size={innerSize} link={pink6} />
-        <Pattern id="purple1" size={innerSize} link={purple1} />
-        <Pattern id="purple2" size={innerSize} link={purple2} />
-        <Pattern id="purple3" size={innerSize} link={purple3} />
-        <Pattern id="purple4" size={innerSize} link={purple4} />
-        <Pattern id="purple5" size={innerSize} link={purple5} />
-        <Pattern id="purple6" size={innerSize} link={purple6} />
-        <Pattern id="yellow1" size={innerSize} link={yellow1} />
-        <Pattern id="yellow2" size={innerSize} link={yellow2} />
-        <Pattern id="yellow3" size={innerSize} link={yellow3} />
-        <Pattern id="yellow4" size={innerSize} link={yellow4} />
-        <Pattern id="yellow5" size={innerSize} link={yellow5} />
-        <Pattern id="yellow6" size={innerSize} link={yellow6} />
-      </Layout>
+            <Hexagon
+              key={state.poolTiles[0].id}
+              q={4}
+              r={1}
+              s={2}
+              data={state.poolTiles[0]}
+              fill={this.getTileImageId(state.poolTiles[0])}
+              onClick={(e, h) => this.selectPoolTile(e, h, 0)}
+            />
+            <Hexagon
+              key={state.poolTiles[1].id}
+              q={5}
+              r={1}
+              s={2}
+              data={state.poolTiles[1]}
+              fill={this.getTileImageId(state.poolTiles[1])}
+              onClick={(e, h) => this.selectPoolTile(e, h, 1)}
+            />
+            <Hexagon
+              key={state.poolTiles[2].id}
+              q={6}
+              r={1}
+              s={2}
+              data={state.poolTiles[2]}
+              fill={this.getTileImageId(state.poolTiles[2])}
+              onClick={(e, h) => this.selectPoolTile(e, h, 2)}
+            />
+            <Pattern id="darkBlue1" size={innerSize} link={darkBlue1} />
+            <Pattern id="darkBlue2" size={innerSize} link={darkBlue2} />
+            <Pattern id="darkBlue3" size={innerSize} link={darkBlue3} />
+            <Pattern id="darkBlue4" size={innerSize} link={darkBlue4} />
+            <Pattern id="darkBlue5" size={innerSize} link={darkBlue5} />
+            <Pattern id="darkBlue6" size={innerSize} link={darkBlue6} />
+            <Pattern id="green1" size={innerSize} link={green1} />
+            <Pattern id="green2" size={innerSize} link={green2} />
+            <Pattern id="green3" size={innerSize} link={green3} />
+            <Pattern id="green4" size={innerSize} link={green4} />
+            <Pattern id="green5" size={innerSize} link={green5} />
+            <Pattern id="green6" size={innerSize} link={green6} />
+            <Pattern id="lightBlue1" size={innerSize} link={lightBlue1} />
+            <Pattern id="lightBlue2" size={innerSize} link={lightBlue2} />
+            <Pattern id="lightBlue3" size={innerSize} link={lightBlue3} />
+            <Pattern id="lightBlue4" size={innerSize} link={lightBlue4} />
+            <Pattern id="lightBlue5" size={innerSize} link={lightBlue5} />
+            <Pattern id="lightBlue6" size={innerSize} link={lightBlue6} />
+            <Pattern id="pink1" size={innerSize} link={pink1} />
+            <Pattern id="pink2" size={innerSize} link={pink2} />
+            <Pattern id="pink3" size={innerSize} link={pink3} />
+            <Pattern id="pink4" size={innerSize} link={pink4} />
+            <Pattern id="pink5" size={innerSize} link={pink5} />
+            <Pattern id="pink6" size={innerSize} link={pink6} />
+            <Pattern id="purple1" size={innerSize} link={purple1} />
+            <Pattern id="purple2" size={innerSize} link={purple2} />
+            <Pattern id="purple3" size={innerSize} link={purple3} />
+            <Pattern id="purple4" size={innerSize} link={purple4} />
+            <Pattern id="purple5" size={innerSize} link={purple5} />
+            <Pattern id="purple6" size={innerSize} link={purple6} />
+            <Pattern id="yellow1" size={innerSize} link={yellow1} />
+            <Pattern id="yellow2" size={innerSize} link={yellow2} />
+            <Pattern id="yellow3" size={innerSize} link={yellow3} />
+            <Pattern id="yellow4" size={innerSize} link={yellow4} />
+            <Pattern id="yellow5" size={innerSize} link={yellow5} />
+            <Pattern id="yellow6" size={innerSize} link={yellow6} />
+          </Layout>
+        </HexGrid>
+        <button color="green" onClick={(e) => setShowScoreModal(true)}>Show Score</button>
+      </div>
     );
   }
 }

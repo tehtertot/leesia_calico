@@ -222,12 +222,13 @@ class ScoreModal extends Component<{}, GameContextProps> {
   }
 
   render() {
-    this.calculateScore();
     const { state, setShowScoreModal } = this.context;
+    console.log('score modal');
     if (!state.showScoreModal) {
       return null;
     }
-
+    
+    this.calculateScore();
     return (
       <div className="score-modal">
         <div className="score-modal-content">
