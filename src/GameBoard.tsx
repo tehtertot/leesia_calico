@@ -179,7 +179,7 @@ class GameLayout extends Component<{}, GameContextProps> {
               <img
                 key={ color + index }
                 src={colorImagesMap[color][0]}
-                style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '5%' }}
+                style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '7%' }}
                 />
             ))
           ))}
@@ -188,7 +188,7 @@ class GameLayout extends Component<{}, GameContextProps> {
               <img
                 key={ cat + index }
                 src={catImagesMap[cat][0]}
-                style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '5%' }}
+                style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 3, height: '7%' }}
                 />
             ))
           ))}

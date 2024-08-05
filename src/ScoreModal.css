@@ -24,6 +24,10 @@
     cursor: pointer;
 }
 
+table, td, tr {
+    border: 1px solid gray;
+}
+
 .col1 {
     width: 200px;
     text-align: center;

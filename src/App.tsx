@@ -1,5 +1,5 @@
 import './App.css';
-import { GameContext, GameContextProps } from './GameContext';
+import { GameContext, GameContextProps, PlayState } from './GameContext';
 import React, { Component } from 'react';
 import { HexGrid } from 'react-hexgrid';
 import GameBoard from './GameBoard';
@@ -15,7 +15,7 @@ class App extends Component {
   context!: React.ContextType<typeof GameContext>;
 
   render() {
-    const { state } = this.context as GameContextProps;
+    const { state, setShowScoreModal } = this.context as GameContextProps;
     return (
       <GameProvider>
         <SetupArea />
@@ -24,6 +24,7 @@ class App extends Component {
           <HexGrid width={1200} height={120} >
             <PlayArea />
           </HexGrid>
+          {state.playState === PlayState.END && <button color="green" onClick={() => setShowScoreModal(true)}>Show Score</button>}
         </div>
         <ScoreModal />
       </GameProvider>

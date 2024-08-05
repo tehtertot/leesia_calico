@@ -238,21 +238,21 @@ class ScoreModal extends Component<{}, GameContextProps> {
               <tr>
                 <th className="col1">Item</th>
                 <th className="col2">Count</th>
-                <th>Score</th>
+                <th className="col2">Score</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td className="col1">Buttons <br /><img key={'buttons'} src={buttonsScoreImg} width={'80px'} /></td>
                 <td className="col2">{this.score.buttonsCount}</td>
-                <td>{this.score.buttonsScore}</td>
+                <td className="col2">{this.score.buttonsScore}</td>
               </tr>
               {
                 Object.entries(this.score.cats).map(([catName, score]) => (
                   <tr key={`trc-${catName}`}>
                     <td className="col1" key={`tdc1-${catName}`}>{catName}<br /><img key={`score-${catName}`} src={CatPointsMap[catName][1]} width={'80px'} /></td>
                     <td className="col2" key={`tdc2-${catName}`}>{score.count}</td>
-                    <td key={`tdc3-${catName}`}>{score.points}</td>
+                    <td className="col2" key={`tdc3-${catName}`}>{score.points}</td>
                   </tr>
                 ))
               }
@@ -261,7 +261,7 @@ class ScoreModal extends Component<{}, GameContextProps> {
                   <tr key={`tr-${index}`}>
                     <td className="col1" key={`td1-${index}`}><img key={`layout-${index}`} src={score[0]} width={'80px'} /></td>
                     <td className="col2" key={`td2-${index}`}></td>
-                    <td key={`td3-${index}`}>{score[1]}</td>
+                    <td className="col2" key={`td3-${index}`}>{score[1]}</td>
                   </tr>
                 ))
               }
