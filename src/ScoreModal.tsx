@@ -223,7 +223,6 @@ class ScoreModal extends Component<{}, GameContextProps> {
 
   render() {
     const { state, setShowScoreModal } = this.context;
-    console.log('score modal');
     if (!state.showScoreModal) {
       return null;
     }

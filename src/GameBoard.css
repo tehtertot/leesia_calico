@@ -74,3 +74,7 @@ svg .game g.blocked:hover {
   width: 700px;
   height: 500px;
 }
+
+.initialSelection {
+  opacity: 0.4;
+}

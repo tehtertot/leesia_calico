@@ -25,6 +25,7 @@ const TILES_PLAYED_END_GAME : number = 22;
 export enum PlayState {
   START,
   TILE_SELECTED,
+  TILE_INITIAL_PLACED,
   TILE_PLACED,
   TILE_DRAWN,
   END,
@@ -68,6 +69,7 @@ export interface GameState {
   tilesPlaced: number;
   otherPlayerCount: number;
   activeTile: Tile | undefined;
+  activeSelectedSpot: Hex | undefined;
   activeButton: string | undefined;
   activeCatGoal: string | undefined;
   buttonsPlayed: ButtonsPlayed;
@@ -80,6 +82,7 @@ export interface GameContextProps {
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => void;
   refillPool: (id: number) => void;
   setActiveTile: (tile?: Tile | undefined) => void;
+  setActiveSelectedSpot: (hex?: Hex | undefined) => void;
   setActiveButton: (button: string | undefined) => void;
   setActiveCatGoal: (catGoal: string | undefined) => void;
   addButton: (color: string, position: Position) => void;
@@ -185,6 +188,7 @@ function SetInitialGameState(): GameState {
       allTiles[starterTiles[1]],
     ],
     activeTile: undefined,
+    activeSelectedSpot: undefined,
     poolTiles: [
       allTiles[starterTiles[2]],
       allTiles[starterTiles[3]],
@@ -216,7 +220,7 @@ function SetInitialGameState(): GameState {
       gwen: [],
       leo: [],
     },
-    showScoreModal: false,
+    showScoreModal: true,
   };
 }
 
@@ -224,6 +228,7 @@ export const GameContext = createContext<GameContextProps>({
   state: SetInitialGameState(),
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => {},
   setActiveTile: (tile?: Tile | undefined) => {},
+  setActiveSelectedSpot: (hex?: Hex | undefined) => {},
   refillPool: (id: number) => {},
   setActiveButton: (button: string | undefined) => {},
   addButton: (color: string, position: Position) => {},
@@ -244,11 +249,16 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
         playerTiles: tiles,
         playState: playState,
         tilesPlaced: tilesPlaced,
+        activeSelectedSpot: undefined,
         showScoreModal: playState === PlayState.END });
   };
 
   setActiveTile = (tile?: Tile | undefined): void => {
     this.setState({ activeTile: tile, playState: PlayState.TILE_SELECTED });
+  };
+
+  setActiveSelectedSpot = (hex?: Hex | undefined): void => {
+    this.setState({ activeSelectedSpot: hex, playState: PlayState.TILE_INITIAL_PLACED });
   };
 
   setActiveButton = (button: string | undefined): void => {
@@ -301,7 +311,6 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
   };
 
   setShowScoreModal = (show: boolean): void => {
-    console.log("setShowScoreModal from context", show);
     this.setState({ showScoreModal: show });
   }
 
@@ -318,6 +327,7 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       state: this.state,
       updateBoardAndPlayerTiles: this.updateBoardAndPlayerTiles,
       setActiveTile: this.setActiveTile,
+      setActiveSelectedSpot: this.setActiveSelectedSpot,
       setActiveButton: this.setActiveButton,
       refillPool: this.refillPool,
       addButton: this.addButton,
