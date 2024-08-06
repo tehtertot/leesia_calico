@@ -52,7 +52,7 @@ class ScoreModal extends Component<{}, GameContextProps> {
   context!: React.ContextType<typeof GameContext>;
   score: IScore;
 
-  constructor(props: {}, score: IScore) {
+  constructor(props: {}) {
     super(props);
     
     this.score = {
@@ -185,10 +185,10 @@ class ScoreModal extends Component<{}, GameContextProps> {
     }
     else if (goalId === 4) {
       // pattern: "AAA-BBB"
-      if (pattern.filter(value => value === 3).length === 3) {
+      if (pattern.filter(value => value === 3).length === 2) {
         gotPatternPoints = true;
       }
-      if (color.filter(value => value === 3).length === 3) {
+      if (color.filter(value => value === 3).length === 2) {
         gotColorPoints = true;
       }
       // points: [8, 13]
