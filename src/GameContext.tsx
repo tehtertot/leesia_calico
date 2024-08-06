@@ -220,7 +220,7 @@ function SetInitialGameState(): GameState {
       gwen: [],
       leo: [],
     },
-    showScoreModal: true,
+    showScoreModal: false,
   };
 }
 
