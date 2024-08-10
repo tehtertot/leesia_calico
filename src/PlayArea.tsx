@@ -38,7 +38,7 @@ import yellow4 from './calico tiles/tiles/yellow/4.png';
 import yellow5 from './calico tiles/tiles/yellow/5.png';
 import yellow6 from './calico tiles/tiles/yellow/6.png';
 import { Tile } from './Tile';
-import { GameContext, GameContextProps, PlayState } from './GameContext';
+import { ActionType, GameContext, GameContextProps, PlayState } from './GameContext';
 
 const config = {
   "layout": { "width": 45, "height": 45, "spacing": 1 },
@@ -50,13 +50,11 @@ class SetupArea extends Component {
   context!: React.ContextType<typeof GameContext>;
 
   clickActiveTile(e: any, h: any) {
-    const { state, setActiveTile } = this.context;
+    const { state, setActiveAction } = this.context;
     if (state.playerTiles.length === 2 &&
-      state.activeButton === undefined &&
-      state.activeCatGoal === undefined &&
-      (state.playState === PlayState.START || state.playState === PlayState.TILE_SELECTED || state.playState === PlayState.TILE_DRAWN))
+      (state.playState === PlayState.START || state.playState === PlayState.TILE_SELECTED || state.playState === PlayState.TILE_INITIAL_PLACED || state.playState === PlayState.TILE_DRAWN))
     {
-      setActiveTile(h.data);
+      setActiveAction(ActionType.TILE, h.data);
     }
   }
 

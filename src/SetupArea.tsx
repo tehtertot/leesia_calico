@@ -7,7 +7,7 @@ import ferns from './calico tiles/patterns/ferns.png';
 import flowers from './calico tiles/patterns/flowers.png';
 import stripes from './calico tiles/patterns/stripes.png';
 import swirls from './calico tiles/patterns/swirls.png';
-import { GameContext, GameContextProps } from './GameContext';
+import { ActionType, GameContext, GameContextProps } from './GameContext';
 import { getCatNameFromImagePath } from './helperMethods';
 
 const config = {
@@ -20,12 +20,10 @@ class SetupArea extends Component {
   context!: React.ContextType<typeof GameContext>;
 
   setActiveCatButton(cat: string) {
-    const { state, setActiveCatGoal } = this.context;
-    if (!state.activeTile && !state.activeButton) {
-      const catName = getCatNameFromImagePath(cat);
-      const catGoal = state.activeCatGoal === catName ? undefined : catName;
-      setActiveCatGoal(catGoal);
-    }
+    const { state, setActiveAction } = this.context;
+    const catName = getCatNameFromImagePath(cat);
+    const catGoal = state.activeCatGoal === catName ? undefined : catName;
+    setActiveAction(ActionType.CAT, catGoal);
   }
 
   render() {

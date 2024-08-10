@@ -67,7 +67,7 @@ import millie from './calico tiles/catPoints/millie.png';
 import rumi from './calico tiles/catPoints/rumi.png';
 import tecolote from './calico tiles/catPoints/tecolote.png';
 import tibbit from './calico tiles/catPoints/tibbit.png';
-import { ButtonColor, GameContext, GameContextProps, PlayState } from './GameContext';
+import { ActionType, ButtonColor, GameContext, GameContextProps, PlayState } from './GameContext';
 
 const config = {
   "width": 1000,
@@ -109,35 +109,26 @@ class GameLayout extends Component<{}, GameContextProps> {
   static contextType = GameContext;
   context!: React.ContextType<typeof GameContext>;
 
-  setBoardHexImage(initialSelection: boolean, targetHex: Hex, image?: string | undefined) {
-    const { state } = this.context;
-    const selectedSpot : Hex | undefined = state.boardHexagons.find(hex => HexUtils.equals(targetHex, hex));
-    if (selectedSpot) {
-      selectedSpot.image = image;
-      selectedSpot.state = initialSelection ? 'selected' : undefined;
-    }
-  }
-
   // check whether the spot is available for tile placement
   onClick(event: any, source: any) {
-    const { state, updateBoardAndPlayerTiles, setActiveSelectedSpot, addButton, addCatButton } = this.context;
+    const { state, updateBoardAndPlayerTiles, setActiveSelectedSpot, setBoardHexImage, addButton, addCatButton } = this.context;
     // if state.activeSelectedSpot is not set, set it
     if (!source.props.fill && state.activeTile && state.playState === PlayState.TILE_SELECTED && state.activeSelectedSpot === undefined) {
-      this.setBoardHexImage(true, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
+      setBoardHexImage(true, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
       setActiveSelectedSpot(source.state.hex);
     }
     // if state.activeSelectedSpot is set, check if the current spot is the same as the activeSelectedSpot; if not, set the activeSelectedSpot hex fill to undefined and then set the activeSelectedSpot to the current spot
     else if (!source.props.fill && state.activeTile && state.playState === PlayState.TILE_INITIAL_PLACED && state.activeSelectedSpot) {
       if (!HexUtils.equals(source.state.hex, state.activeSelectedSpot)) {
-        this.setBoardHexImage(false, state.activeSelectedSpot!);
-        this.setBoardHexImage(true, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
+        setBoardHexImage(false, state.activeSelectedSpot!);
+        setBoardHexImage(true, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
         setActiveSelectedSpot(source.state.hex);
       }
     }
     // if state.activeSelectedSpot is set and the current spot is the same as the activeSelectedSpot, set the activeSelectedSpot hex fill (below)
     else if (state.activeTile && state.playState === PlayState.TILE_INITIAL_PLACED && state.activeSelectedSpot && HexUtils.equals(source.state.hex, state.activeSelectedSpot)) {
       // fill the spot on the board with the current active tile
-      this.setBoardHexImage(false, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
+      setBoardHexImage(false, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
       state.playerTiles = state.playerTiles.filter(tile => tile.id !== state.activeTile!.id);
       updateBoardAndPlayerTiles(state.boardHexagons, state.playerTiles);
     }
@@ -167,11 +158,9 @@ class GameLayout extends Component<{}, GameContextProps> {
   }
 
   setActiveButton(color: ButtonColor) {
-    const { state, setActiveButton } = this.context;
-    if (!state.activeTile && !state.activeCatGoal) {
-      const updatedColor = state.activeButton === color ? undefined : color;
-      setActiveButton(updatedColor);
-    }
+    const { state, setActiveAction } = this.context;
+    const updatedColor = state.activeButton === color ? undefined : color;
+    setActiveAction(ActionType.BUTTON, updatedColor);
   }
   
   render() {

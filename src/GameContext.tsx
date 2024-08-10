@@ -1,6 +1,6 @@
 import { Component, createContext, ReactNode } from 'react';
 import { Tile } from './Tile';
-import { Hex } from 'react-hexgrid';
+import { Hex, HexUtils } from 'react-hexgrid';
 import { getDistinctRandomNumbers } from './helperMethods';
 
 // boards
@@ -29,6 +29,12 @@ export enum PlayState {
   TILE_PLACED,
   TILE_DRAWN,
   END,
+}
+
+export enum ActionType {
+  BUTTON,
+  CAT,
+  TILE,
 }
 
 export enum ButtonColor {
@@ -81,10 +87,9 @@ export interface GameContextProps {
   state: GameState;
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => void;
   refillPool: (id: number) => void;
-  setActiveTile: (tile?: Tile | undefined) => void;
+  setActiveAction: (action: ActionType, activeThing: string | Tile | undefined) => void;
+  setBoardHexImage: (initialSelection: boolean, targetHex: Hex, image?: string | undefined) => void;
   setActiveSelectedSpot: (hex?: Hex | undefined) => void;
-  setActiveButton: (button: string | undefined) => void;
-  setActiveCatGoal: (catGoal: string | undefined) => void;
   addButton: (color: string, position: Position) => void;
   addCatButton: (cat: string, position: Position) => void;
   setShowScoreModal: (show: boolean) => void;
@@ -227,12 +232,11 @@ function SetInitialGameState(): GameState {
 export const GameContext = createContext<GameContextProps>({
   state: SetInitialGameState(),
   updateBoardAndPlayerTiles: (hexagons: Hex[], tiles: Tile[]) => {},
-  setActiveTile: (tile?: Tile | undefined) => {},
+  setActiveAction: (action: ActionType, activeThing: string | Tile | undefined) => {},
+  setBoardHexImage: (initialSelection: boolean, targetHex: Hex, image?: string | undefined) => {},
   setActiveSelectedSpot: (hex?: Hex | undefined) => {},
   refillPool: (id: number) => {},
-  setActiveButton: (button: string | undefined) => {},
   addButton: (color: string, position: Position) => {},
-  setActiveCatGoal: (catGoal: string | undefined) => {},
   addCatButton: (cat: string, position: Position) => {},
   setShowScoreModal: (show: boolean) => {},
 });
@@ -253,25 +257,52 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
         showScoreModal: playState === PlayState.END });
   };
 
-  setActiveTile = (tile?: Tile | undefined): void => {
-    this.setState({ activeTile: tile, playState: PlayState.TILE_SELECTED });
+  setActiveAction = (action: ActionType, activeThing: string | Tile | undefined): void => {
+    if (this.state.activeSelectedSpot) {
+      this.setBoardHexImage(false, this.state.activeSelectedSpot!);
+      this.setActiveSelectedSpot(undefined);
+    }
+    let activeButton = undefined;
+    let activeCatGoal = undefined;
+    let activeTile = undefined;
+    let playState = this.state.playState;
+    switch (action) {
+      case ActionType.BUTTON:
+        activeButton = activeThing as string;
+        break;
+      case ActionType.CAT:
+        activeCatGoal = activeThing as string;
+        break;
+      case ActionType.TILE:
+        activeTile = activeThing as Tile;
+        playState = PlayState.TILE_SELECTED;
+        break;
+    }
+
+    this.setState({ 
+      activeButton: activeButton,
+      activeCatGoal: activeCatGoal,
+      activeTile: activeTile,
+      playState: playState });
   };
 
-  setActiveSelectedSpot = (hex?: Hex | undefined): void => {
-    this.setState({ activeSelectedSpot: hex, playState: PlayState.TILE_INITIAL_PLACED });
-  };
+  setBoardHexImage = (initialSelection: boolean, targetHex: Hex, image?: string | undefined) => {
+    const selectedSpot : Hex | undefined = this.state.boardHexagons.find(hex => HexUtils.equals(targetHex, hex));
+    if (selectedSpot) {
+      selectedSpot.image = image;
+      selectedSpot.state = initialSelection ? 'selected' : undefined;
+    }
 
-  setActiveButton = (button: string | undefined): void => {
-    this.setState({ activeButton: button });
-  };
+    this.setState({ boardHexagons: this.state.boardHexagons });
+  }
   
+    setActiveSelectedSpot = (hex?: Hex | undefined): void => {
+      this.setState({ activeSelectedSpot: hex, playState: PlayState.TILE_INITIAL_PLACED });
+    };
+
   addButton = (color: string, position: Position): void => {
     this.state.buttonsPlayed[color].push(position);
     this.setState({ buttonsPlayed: this.state.buttonsPlayed, activeButton: undefined });
-  };
-
-  setActiveCatGoal = (cat: string | undefined): void => {
-    this.setState({ activeCatGoal: cat });
   };
 
   addCatButton = (cat: string, position: Position): void => {
@@ -326,13 +357,12 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
     const contextValue: GameContextProps = {
       state: this.state,
       updateBoardAndPlayerTiles: this.updateBoardAndPlayerTiles,
-      setActiveTile: this.setActiveTile,
       setActiveSelectedSpot: this.setActiveSelectedSpot,
-      setActiveButton: this.setActiveButton,
+      setActiveAction: this.setActiveAction,
+      setBoardHexImage: this.setBoardHexImage,
       refillPool: this.refillPool,
       addButton: this.addButton,
       addCatButton: this.addCatButton,
-      setActiveCatGoal: this.setActiveCatGoal,
       setShowScoreModal: this.setShowScoreModal,
     };
 
