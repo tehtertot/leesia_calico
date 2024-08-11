@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/leesia_calico/static/css/main.b1aa4bae.css",
-    "main.js": "/leesia_calico/static/js/main.790bd030.js",
+    "main.css": "/leesia_calico/static/css/main.d2ab2843.css",
+    "main.js": "/leesia_calico/static/js/main.52c0e240.js",
     "static/js/453.e3802b17.chunk.js": "/leesia_calico/static/js/453.e3802b17.chunk.js",
     "static/media/yellow.jpg": "/leesia_calico/static/media/yellow.2de840d5699a4dee112c.jpg",
     "static/media/blue.jpg": "/leesia_calico/static/media/blue.ec6a6d1ce7d83f31db15.jpg",
@@ -17,6 +17,7 @@
     "static/media/callie.png": "/leesia_calico/static/media/callie.c9df22f6383457acf90c.png",
     "static/media/leo.png": "/leesia_calico/static/media/leo.bf675209ad6f937055e3.png",
     "static/media/coconut.png": "/leesia_calico/static/media/coconut.84e1dfb82e5987bd626d.png",
+    "static/media/catPaw.png": "/leesia_calico/static/media/catPaw.60e15a58598fd8c141c9.png",
     "static/media/1.png": "/leesia_calico/static/media/1.f1ec1c507a79500c7104.png",
     "static/media/buttons-scoring.png": "/leesia_calico/static/media/buttons-scoring.29fa7163d80f552d475f.png",
     "static/media/4.png": "/leesia_calico/static/media/4.f8f42f8cde89303eeb5d.png",
@@ -31,12 +32,12 @@
     "static/media/dots.png": "/leesia_calico/static/media/dots.0654a41515f1bfa707c7.png",
     "static/media/stripes.png": "/leesia_calico/static/media/stripes.4cfae477dd28b4cfbc86.png",
     "index.html": "/leesia_calico/index.html",
-    "main.b1aa4bae.css.map": "/leesia_calico/static/css/main.b1aa4bae.css.map",
-    "main.790bd030.js.map": "/leesia_calico/static/js/main.790bd030.js.map",
+    "main.d2ab2843.css.map": "/leesia_calico/static/css/main.d2ab2843.css.map",
+    "main.52c0e240.js.map": "/leesia_calico/static/js/main.52c0e240.js.map",
     "453.e3802b17.chunk.js.map": "/leesia_calico/static/js/453.e3802b17.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b1aa4bae.css",
-    "static/js/main.790bd030.js"
+    "static/css/main.d2ab2843.css",
+    "static/js/main.52c0e240.js"
   ]
 }
