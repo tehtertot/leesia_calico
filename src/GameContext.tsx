@@ -1,7 +1,7 @@
 import { Component, createContext, ReactNode } from 'react';
 import { Tile } from './Tile';
 import { Hex, HexUtils } from 'react-hexgrid';
-import { getDistinctRandomNumbers } from './helperMethods';
+import { getDistinctRandomNumbers, getSingleRandomNumber } from './helperMethods';
 
 // boards
 import blue from './calico tiles/boards/blue.jpg';
@@ -137,11 +137,14 @@ function SetInitialGameState(): GameState {
   ];
 
   // set the cat goals
-  const catGoals = [[ callie, millie ], [ rumi, tibbit ], [ coconut, tecolote ], [ almond, cira ], [ gwen, leo ]];
-  const selectedCatPatterns = getDistinctRandomNumbers(3, 0, catGoals.length - 1).sort((a, b) => a - b);
-  const catGoal1 = getDistinctRandomNumbers(1, 0, 1);
-  const catGoal2 = getDistinctRandomNumbers(1, 0, 1);
-  const catGoal3 = getDistinctRandomNumbers(1, 0, 1);
+  const catGoals = [
+    [[ callie, millie ], [ rumi, tibbit ]],
+    [[ coconut, tecolote ], [ almond, cira ]],
+    [[ gwen, leo ]]
+  ];
+  const catGoal1: number[] = [getSingleRandomNumber(0, catGoals[0].length - 1), getSingleRandomNumber(0, 1)];
+  const catGoal2: number[] = [getSingleRandomNumber(0, catGoals[1].length - 1), getSingleRandomNumber(0, 1)];
+  const catGoal3: number[] = [getSingleRandomNumber(0, catGoals[2].length - 1), getSingleRandomNumber(0, 1)];
 
   const patterns = [ "clovers", "dots", "ferns", "flowers", "stripes", "swirls" ];
   const patternIds = getDistinctRandomNumbers(6, 0, 5);
@@ -181,9 +184,9 @@ function SetInitialGameState(): GameState {
     playerColor: boardColor,
     boardHexagons: boardHexagons,
     catGoals: [
-      catGoals[selectedCatPatterns[0]][catGoal1[0]],
-      catGoals[selectedCatPatterns[1]][catGoal2[0]],
-      catGoals[selectedCatPatterns[2]][catGoal3[0]],
+      catGoals[0][catGoal1[0]][catGoal1[1]],
+      catGoals[1][catGoal2[0]][catGoal1[1]],
+      catGoals[2][catGoal3[0]][catGoal1[1]],
     ],
     patterns: hexPatterns,
     goalIds: selectedGoalIds,
