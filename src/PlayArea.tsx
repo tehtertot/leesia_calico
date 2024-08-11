@@ -1,4 +1,4 @@
-import './SetupArea.css';
+import './PlayArea.css';
 import React, { Component } from 'react';
 import { Layout, Hexagon, HexGrid, Pattern } from 'react-hexgrid';
 import darkBlue1 from './calico tiles/tiles/darkBlue/1.png';
@@ -37,6 +37,7 @@ import yellow3 from './calico tiles/tiles/yellow/3.png';
 import yellow4 from './calico tiles/tiles/yellow/4.png';
 import yellow5 from './calico tiles/tiles/yellow/5.png';
 import yellow6 from './calico tiles/tiles/yellow/6.png';
+import catPaw from './calico tiles/catPaw.png';
 import { Tile } from './Tile';
 import { ActionType, GameContext, GameContextProps, PlayState } from './GameContext';
 
@@ -52,7 +53,9 @@ class SetupArea extends Component {
   clickActiveTile(e: any, h: any) {
     const { state, setActiveAction } = this.context;
     if (state.playerTiles.length === 2 &&
-      (state.playState === PlayState.START || state.playState === PlayState.TILE_SELECTED || state.playState === PlayState.TILE_INITIAL_PLACED || state.playState === PlayState.TILE_DRAWN))
+      (state.playState === PlayState.START ||
+        state.playState === PlayState.TILE_SELECTED ||
+        state.playState === PlayState.TILE_INITIAL_PLACED))
     {
       setActiveAction(ActionType.TILE, h.data);
     }
@@ -79,20 +82,23 @@ class SetupArea extends Component {
       <div className="play-area">
         <HexGrid width={1200} height={120} >
           <Layout size={size} flat={false} spacing={spacing} origin={config.origin}>
-            <Hexagon
-              key={state.playerTiles[0].id}
-              q={0}
-              r={1}
-              s={2}
-              data={state.playerTiles[0]}
-              fill={this.getTileImageId(state.playerTiles[0])}
-              onClick={(e, h) => this.clickActiveTile(e, h)}
-              style={{
-                stroke: state.playerTiles[0].id === state.activeTile?.id ? state.playerColor : "none",
-                strokeWidth: state.playerTiles[0].id === state.activeTile?.id ? 5 : 0,
-              }}
-            />
-            {state.playerTiles[1]? 
+            { state.playerTiles[0] ?
+              <Hexagon
+                key={state.playerTiles[0].id}
+                q={0}
+                r={1}
+                s={2}
+                data={state.playerTiles[0]}
+                fill={this.getTileImageId(state.playerTiles[0])}
+                onClick={(e, h) => this.clickActiveTile(e, h)}
+                style={{
+                  stroke: state.playerTiles[0].id === state.activeTile?.id ? state.playerColor : "none",
+                  strokeWidth: state.playerTiles[0].id === state.activeTile?.id ? 5 : 0,
+                }}
+              />
+            : <div />
+            }
+            {state.playerTiles[1] ? 
               <Hexagon
                 key={state.playerTiles[1].id}
                 q={1}
@@ -109,33 +115,42 @@ class SetupArea extends Component {
               : <div />
             }
 
-            <Hexagon
-              key={state.poolTiles[0].id}
-              q={4}
-              r={1}
-              s={2}
-              data={state.poolTiles[0]}
-              fill={this.getTileImageId(state.poolTiles[0])}
-              onClick={(e, h) => this.selectPoolTile(e, h, 0)}
-            />
-            <Hexagon
-              key={state.poolTiles[1].id}
-              q={5}
-              r={1}
-              s={2}
-              data={state.poolTiles[1]}
-              fill={this.getTileImageId(state.poolTiles[1])}
-              onClick={(e, h) => this.selectPoolTile(e, h, 1)}
-            />
-            <Hexagon
-              key={state.poolTiles[2].id}
-              q={6}
-              r={1}
-              s={2}
-              data={state.poolTiles[2]}
-              fill={this.getTileImageId(state.poolTiles[2])}
-              onClick={(e, h) => this.selectPoolTile(e, h, 2)}
-            />
+            {state.poolTiles[0] ? 
+              <Hexagon
+                key={state.poolTiles[0].id}
+                q={4}
+                r={1}
+                s={2}
+                data={state.poolTiles[0]}
+                fill={this.getTileImageId(state.poolTiles[0])}
+                onClick={(e, h) => this.selectPoolTile(e, h, 0)}
+              />
+              : <div />
+            }
+            {state.poolTiles[1] ? 
+              <Hexagon
+                key={state.poolTiles[1].id}
+                q={5}
+                r={1}
+                s={2}
+                data={state.poolTiles[1]}
+                fill={this.getTileImageId(state.poolTiles[1])}
+                onClick={(e, h) => this.selectPoolTile(e, h, 1)}
+              />
+              : <div />
+            }
+            {state.poolTiles[2] ?
+              <Hexagon
+                key={state.poolTiles[2].id}
+                q={6}
+                r={1}
+                s={2}
+                data={state.poolTiles[2]}
+                fill={this.getTileImageId(state.poolTiles[2])}
+                onClick={(e, h) => this.selectPoolTile(e, h, 2)}
+              />
+              : <div />
+            }
             <Pattern id="darkBlue1" size={innerSize} link={darkBlue1} />
             <Pattern id="darkBlue2" size={innerSize} link={darkBlue2} />
             <Pattern id="darkBlue3" size={innerSize} link={darkBlue3} />
@@ -174,7 +189,10 @@ class SetupArea extends Component {
             <Pattern id="yellow6" size={innerSize} link={yellow6} />
           </Layout>
         </HexGrid>
-        <button color="green" onClick={(e) => setShowScoreModal(true)}>Show Score</button>
+        <img src={catPaw} className={state.playState === PlayState.OTHER_PLAYER ?
+          `animate-cat-paw-up left-${state.otherPlayerChoice}` : 
+          'cat-paw'} />
+        <button className={`score-btn ${state.playerColor}-btn`} onClick={(e) => setShowScoreModal(true)}>Show Score</button>
       </div>
     );
   }

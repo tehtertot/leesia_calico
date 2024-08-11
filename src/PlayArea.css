@@ -1,23 +1,105 @@
-@keyframes catPawRemove {
+@keyframes catPawGrab {
   0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  50% {
     transform: translateY(0);
     opacity: 1;
   }
+  10% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-20px);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-30px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-40px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-50px);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-60px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-70px);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(-80px);
+    opacity: 1;
+  }
   100% {
-    transform: translateY(-100%);
-    opacity: 0;
+    transform: translateY(-90px);
+    opacity: 1;
   }
 }
 
+.play-area {
+  width: 100%;
+}
+
 .cat-paw {
+  display: none;
+}
+
+.animate-cat-paw-up {
   position: absolute;
-  width: 50px;
-  height: 50px;
-  background: url('../public/images/catPaw.png') no-repeat center center;
+  width: 60px;
   background-size: contain;
-  animation: catPawRemove 1s ease-in-out;
+  animation: catPawGrab 300ms ease-in-out;
+}
+
+.left-0 {
+  margin-left: 450px;
+}
+
+.left-1 {
+  margin-left: 545px;
+}
+
+.left-2 {
+  margin-left: 640px;
+}
+
+.score-btn {
+  border: 1px solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 50px 403px;
+  cursor: pointer;
+}
+
+.green-btn {
+  background-color: green;
+  color: white;
+  border-color: white;
+}
+
+.yellow-btn {
+  background-color: yellow;
+  color: black;
+  border-color: black;
+}
+
+.purple-btn {
+  background-color: purple;
+  color: white;
+  border-color: white;
+}
+
+.blue-btn {
+  background-color: blue;
+  color: white;
+  border-color: white;
 }

@@ -21,13 +21,15 @@ import tecolote from './calico tiles/catGoals/tecolote.png';
 import tibbit from './calico tiles/catGoals/tibbit.png';
 
 const TILES_PLAYED_END_GAME : number = 22;
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export enum PlayState {
   START,
   TILE_SELECTED,
   TILE_INITIAL_PLACED,
   TILE_PLACED,
-  TILE_DRAWN,
+  OTHER_PLAYER,
+  OTHER_PLAYER_DONE,
   END,
 }
 
@@ -70,9 +72,10 @@ export interface GameState {
   patterns: Hex[];
   allTiles: Tile[];
   playerTiles: Tile[];
-  poolTiles: Tile[];
+  poolTiles: (Tile | null)[];
   playState: PlayState;
   tilesPlaced: number;
+  otherPlayerChoice: number;
   otherPlayerCount: number;
   activeTile: Tile | undefined;
   activeSelectedSpot: Hex | undefined;
@@ -204,6 +207,7 @@ function SetInitialGameState(): GameState {
     ],
     playState: PlayState.START,
     tilesPlaced: 0,
+    otherPlayerChoice: 0,
     otherPlayerCount: 1,
     activeButton: undefined,
     buttonsPlayed: {
@@ -313,35 +317,50 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
     this.setState({ catsPlayed: this.state.catsPlayed, activeCatGoal: undefined });
   };
 
-  refillPool = (index: number): void => {
+  refillPool = async (index: number): Promise<void> => {
     if (this.state.allTiles.length === 0) {
       throw new Error("No more tiles available");
     }
-
-    const playerChosenTile = this.state.poolTiles.splice(index, 1);
-    this.state.playerTiles.push(playerChosenTile[0]);
-
-    // draw a new tile for the pool
+    
+    // add player's tile to their pool
+    const playerChosenTile = this.state.poolTiles[index]!;
+    this.state.poolTiles[index] = null;
+    this.state.playerTiles.push(playerChosenTile);
+    this.setState({ playerTiles: this.state.playerTiles, poolTiles: this.state.poolTiles });
+    await delay(100);
+    
+    // draw a new tile for the general pool
     const randomIndex = this.getAvailableTileIndex();
     this.state.allTiles[randomIndex].isUsed = true;
     const tile = this.state.allTiles[randomIndex];
-    this.state.poolTiles.push(tile);
+    this.state.poolTiles[index] = tile;
+    this.setState({ poolTiles: this.state.poolTiles });
+    await delay(200);
     
     for (let p = 0; p < this.state.otherPlayerCount; p++) {
-      const otherPlayerChosenTile = this.state.poolTiles.splice(index, 1);
+      const randomIndexFromPool = getSingleRandomNumber(0, this.state.poolTiles.length - 1);
+      
+      // do a cat animation to remove one of the pool tiles
+      this.setState({ playState: PlayState.OTHER_PLAYER, otherPlayerChoice: randomIndexFromPool });
+      await delay(300);
+      
+      this.state.poolTiles[randomIndexFromPool] = null;
+      this.setState({ poolTiles: this.state.poolTiles, playState: PlayState.OTHER_PLAYER_DONE });
+      await delay(300);
       
       const newTileIndex = this.getAvailableTileIndex();
       this.state.allTiles[newTileIndex].isUsed = true;
       const newTile = this.state.allTiles[newTileIndex];
-      // do a cat animation to remove one of the pool tiles
-      this.state.poolTiles.push(newTile);
+      this.state.poolTiles[randomIndexFromPool] = newTile;
+      
+      this.setState({ playState: PlayState.OTHER_PLAYER_DONE, poolTiles: this.state.poolTiles });
     }
     
     this.setState({
       playerTiles: this.state.playerTiles,
       poolTiles: this.state.poolTiles,
       allTiles: this.state.allTiles,
-      playState: PlayState.TILE_DRAWN });
+      playState: PlayState.START });
   };
 
   setShowScoreModal = (show: boolean): void => {

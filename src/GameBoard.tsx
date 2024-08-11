@@ -110,7 +110,7 @@ class GameLayout extends Component<{}, GameContextProps> {
   context!: React.ContextType<typeof GameContext>;
 
   // check whether the spot is available for tile placement
-  onClick(event: any, source: any) {
+  async onClick(event: any, source: any) {
     const { state, updateBoardAndPlayerTiles, setActiveSelectedSpot, setBoardHexImage, addButton, addCatButton } = this.context;
     // if state.activeSelectedSpot is not set, set it
     if (!source.props.fill && state.activeTile && state.playState === PlayState.TILE_SELECTED && state.activeSelectedSpot === undefined) {
@@ -130,7 +130,7 @@ class GameLayout extends Component<{}, GameContextProps> {
       // fill the spot on the board with the current active tile
       setBoardHexImage(false, source.state.hex, `x-${state.activeTile.color}${state.activeTile.patternId}`);
       state.playerTiles = state.playerTiles.filter(tile => tile.id !== state.activeTile!.id);
-      updateBoardAndPlayerTiles(state.boardHexagons, state.playerTiles);
+      await updateBoardAndPlayerTiles(state.boardHexagons, state.playerTiles);
     }
     else if (source.props.fill && state.activeButton && !source.props.fill.startsWith('goal')) {
       const heights = [333, 417, 503, 587, 671];
@@ -177,7 +177,7 @@ class GameLayout extends Component<{}, GameContextProps> {
                 key={color}
                 src={state.activeButton === color ? colorImagesMap[color][1] : colorImagesMap[color][0]}
                 draggable={false}
-                onClick={() => this.setActiveButton(color)}
+                onClick={async () => await this.setActiveButton(color)}
               />
             ))
           }

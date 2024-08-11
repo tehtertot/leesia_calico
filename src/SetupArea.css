@@ -1,0 +1,13 @@
+.setup-area {
+    width: 100%;
+    display: inline-block;
+    top: 0;
+    left: 0;
+    height: 40%;
+    z-index: -1;
+  }
+  
+  .setup-area img {
+    margin-left: 10px;
+  }
+  

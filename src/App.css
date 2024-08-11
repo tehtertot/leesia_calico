@@ -1,3 +1,7 @@
+.App {
+  width: 900px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -33,18 +37,6 @@
   -webkit-user-drag: element;
   -khtml-user-drag: element;
   user-drag: element;
-}
-
-.setup-area {
-  display: inline-block;
-  top: 0;
-  left: 0;
-  height: 40%;
-  z-index: -1;
-}
-
-.setup-area img {
-  margin-left: 10px;
 }
 
 @keyframes App-logo-spin {
