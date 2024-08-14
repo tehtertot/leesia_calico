@@ -39,3 +39,13 @@ table, td, tr {
     width: 100px;
     text-align: center;
 }
+
+.col-score {
+  width: 100px;
+  text-align: center;
+}
+
+.col-score-date {
+  width: 300px;
+  text-align: center;
+}

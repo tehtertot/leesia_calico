@@ -1,8 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Component, createContext, ReactNode } from 'react';
 import { Tile } from './Tile';
 import { Hex, HexUtils } from 'react-hexgrid';
-import { getDistinctRandomNumbers, getSingleRandomNumber } from './helperMethods';
-
+import { getCatNameFromImagePath, getDistinctRandomNumbers, getSingleRandomNumber } from './helperMethods';
 // boards
 import blue from './calico tiles/boards/blue.jpg';
 import green from './calico tiles/boards/green.jpg';
@@ -19,9 +19,53 @@ import millie from './calico tiles/catGoals/millie.png';
 import rumi from './calico tiles/catGoals/rumi.png';
 import tecolote from './calico tiles/catGoals/tecolote.png';
 import tibbit from './calico tiles/catGoals/tibbit.png';
+// layout goals
+import goal1 from './calico tiles/goals/1.png';
+import goal2 from './calico tiles/goals/2.png';
+import goal3 from './calico tiles/goals/3.png';
+import goal4 from './calico tiles/goals/4.png';
+import goal5 from './calico tiles/goals/5.png';
+import goal6 from './calico tiles/goals/6.png';
 
+// create a randomly generated guid
+const gameId: string = uuidv4();
 const TILES_PLAYED_END_GAME : number = 22;
+const highScoresKey = "calicoHighScores";
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+type CatPointsMapType = { [key: string]: [number, string] };
+export const CatPointsMap: CatPointsMapType =
+{
+  "callie": [3, callie],
+  "millie": [3, millie],
+  "rumi": [5, rumi],
+  "tibbit": [5, tibbit],
+  "coconut": [7, coconut],
+  "tecolote": [7, tecolote],
+  "almond": [9, almond],
+  "cira": [9, cira],
+  "gwen": [11, gwen],
+  "leo": [11, leo],
+};
+
+function saveHighScores(score: FinalScore) {
+  let currentScores = loadHighScores();
+  const currentGameScoreIndex = currentScores.findIndex((score: FinalScore) => score.gameId === score.gameId);
+  if (currentGameScoreIndex > -1) {
+    currentScores[currentGameScoreIndex] = score;
+  }
+  else {
+    currentScores.push(score);
+  }
+  currentScores = currentScores.sort((a: FinalScore, b: FinalScore) => b.score - a.score);
+  currentScores.length = Math.min(currentScores.length, 3);
+  localStorage.setItem(highScoresKey, JSON.stringify(currentScores));
+}
+
+function loadHighScores(): FinalScore[] {
+  const currentScores = localStorage.getItem(highScoresKey);
+  return currentScores ? JSON.parse(currentScores) : [];
+}
 
 export enum PlayState {
   START,
@@ -63,6 +107,12 @@ type ButtonsPlayed = {
   [key: string] : Position[];
 }
 
+export interface FinalScore {
+  gameId: string;
+  score: number;
+  timestamp: string;
+}
+
 export interface GameState {
   goalIds: number[];
   selectedBoard: string;
@@ -84,6 +134,8 @@ export interface GameState {
   buttonsPlayed: ButtonsPlayed;
   catsPlayed: ButtonsPlayed;
   showScoreModal: boolean;
+  score: IScore;
+  highScores: FinalScore[];
 }
 
 export interface GameContextProps {
@@ -96,6 +148,7 @@ export interface GameContextProps {
   addButton: (color: string, position: Position) => void;
   addCatButton: (cat: string, position: Position) => void;
   setShowScoreModal: (show: boolean) => void;
+  saveScore: (score: number) => void;
 }
 
 function SetInitialGameState(): GameState {
@@ -182,6 +235,8 @@ function SetInitialGameState(): GameState {
   allTiles[starterTiles[3]].isUsed = true;
   allTiles[starterTiles[4]].isUsed = true;
 
+  const highScores = loadHighScores();
+
   return {
     selectedBoard: randomBoard,
     playerColor: boardColor,
@@ -233,6 +288,14 @@ function SetInitialGameState(): GameState {
       leo: [],
     },
     showScoreModal: false,
+    score: {
+      buttonsCount: 0,
+      buttonsScore: 0,
+      cats: {},
+      bonusTiles: [],
+      total: 0,
+    },
+    highScores: highScores,
   };
 }
 
@@ -246,14 +309,186 @@ export const GameContext = createContext<GameContextProps>({
   addButton: (color: string, position: Position) => {},
   addCatButton: (cat: string, position: Position) => {},
   setShowScoreModal: (show: boolean) => {},
+  saveScore: (score: number) => {},
 });
+
+interface IScore {
+  buttonsCount: number;
+  buttonsScore: number;
+  cats: CatPointsScoreType;
+  bonusTiles: LayoutTileScoreType[];
+  total: number;
+}
+
+type CatPointsScoreType = { [key: string]: { count: number, points: number } };
+type LayoutTileScoreType = [string, number];
 
 export class GameProvider extends Component<{ children: ReactNode }, GameState> {
   state: GameState = SetInitialGameState() as GameState;
   
+  calculateScore = (isEnd: boolean): void => {
+    const buttonPoints = this.calculateButtonScore();
+    const catPoints = this.calculateCatScore();
+    const layoutPoints = this.calculateLayoutTileScores();
+    const total = buttonPoints + catPoints + layoutPoints;
+    this.state.score.total = total;
+    if (isEnd)
+    {
+      this.saveScore(total);
+    }
+  };
+
+  calculateButtonScore = (): number => {
+    let points = 0;
+    let count = 0;
+    Object.values(this.state.buttonsPlayed).forEach((button) => {
+      points += 3 * button.length;
+      count += button.length;
+    });
+    this.state.score.buttonsCount = count;
+    this.state.score.buttonsScore = points;
+    return points;
+  };
+
+  calculateCatScore(): number {
+    const catGoals = this.state.catGoals;
+    const catScore: CatPointsScoreType = {};
+    let totalPoints = 0;
+    catGoals.forEach((catGoal) => {
+      const catName = getCatNameFromImagePath(catGoal);
+      const count = this.state.catsPlayed[catName].length;
+      const points = CatPointsMap[catName][0] * count;
+      totalPoints += points;
+      this.state.score.cats[catName] = {
+        count,
+        points,
+      };
+    });
+    return totalPoints;
+  }
+
+  calculateLayoutTileScores = (): number => {
+    this.state.score.bonusTiles = [];
+    this.state.score.bonusTiles.push(this.calculateLayoutTileScore(0, this.state.goalIds[0]));
+    this.state.score.bonusTiles.push(this.calculateLayoutTileScore(1, this.state.goalIds[1]));
+    this.state.score.bonusTiles.push(this.calculateLayoutTileScore(2, this.state.goalIds[2]));
+    return this.state.score.bonusTiles.reduce((acc, cur) => acc + cur[1], 0);
+  }
+
+  calculateLayoutTileScore = (goalIndex: number, goalId: number): LayoutTileScoreType => {
+    const neighbors = this.getHexagonsAroundScoreTile(goalIndex);
+    let pattern = [0, 0, 0, 0, 0, 0];
+    let colorList = ["darkBlue", "green", "lightBlue", "pink", "purple", "yellow"];
+    let color = [0, 0, 0, 0, 0, 0];
+    let gotPatternPoints = false;
+    let gotColorPoints = false;
+    neighbors.forEach((hex) => {
+      const tileInfo = hex.image?.split('x-')[1];
+      const patternId = tileInfo ? tileInfo[tileInfo?.length - 1] : undefined;
+      const colorName = tileInfo ? tileInfo?.slice(0, -1) : undefined;
+      if (patternId !== undefined) {
+        pattern[parseInt(patternId) - 1]++;
+      }
+
+      if (colorName !== undefined) {
+        const colorIndex = colorList.indexOf(colorName);
+        color[colorIndex]++;
+      }
+    });
+
+    if (goalId === 0) {
+      // pattern "AAA-BB-C"
+      if (pattern.includes(3) && pattern.includes(2) && pattern.includes(1)) {
+        gotPatternPoints = true;
+      }
+      
+      if (color.includes(3) && color.includes(2) && color.includes(1)) {
+        gotColorPoints = true;
+      }
+      // points: [7, 11]
+      const points = gotPatternPoints && gotColorPoints ? 11 : gotPatternPoints || gotColorPoints ? 7 : 0;
+      return [goal1, points];
+    }
+    else if (goalId === 1) {
+      // pattern: "<>",
+      if (pattern.every(value => value === 1)) {
+        gotPatternPoints = true;
+      }
+      if (color.every(value => value === 1)) {
+        gotColorPoints = true;
+      }
+      // points: [10, 15]
+      const points = gotPatternPoints && gotColorPoints ? 15 : gotPatternPoints || gotColorPoints ? 10 : 0;
+      return [goal2, points];
+    }
+    else if (goalId === 2) {
+      // pattern: "AAAA-BB",
+      if (pattern.includes(4) && pattern.includes(2)) {
+        gotPatternPoints = true;
+      }
+      if (color.includes(4) && color.includes(2)) {
+        gotColorPoints = true;
+      }
+      // points: [8, 14]
+      const points = gotPatternPoints && gotColorPoints ? 14 : gotPatternPoints || gotColorPoints ? 8 : 0;
+      return [goal3, points];
+    }
+    else if (goalId === 3) {
+      // pattern: "AA-BB-C-D"
+      if (pattern.filter(value => value === 2).length === 2 && pattern.filter(value => value === 1).length === 2) {
+        gotPatternPoints = true;
+      }
+      if (color.filter(value => value === 2).length === 2 && color.filter(value => value === 1).length === 2) {
+        gotColorPoints = true;
+      }
+      // points: [5, 8]
+      const points = gotPatternPoints && gotColorPoints ? 8 : gotPatternPoints || gotColorPoints ? 5 : 0;
+      return [goal4, points];
+    }
+    else if (goalId === 4) {
+      // pattern: "AAA-BBB"
+      if (pattern.filter(value => value === 3).length === 2) {
+        gotPatternPoints = true;
+      }
+      if (color.filter(value => value === 3).length === 2) {
+        gotColorPoints = true;
+      }
+      // points: [8, 13]
+      const points = gotPatternPoints && gotColorPoints ? 13 : gotPatternPoints || gotColorPoints ? 8 : 0;
+      return [goal5, points];
+    }
+    else if (goalId === 5) {
+      // pattern: "AA-BB-CC"
+      if (pattern.filter(value => value === 2).length === 3) {
+        gotPatternPoints = true;
+      }
+      if (color.filter(value => value === 2).length === 3) {
+        gotColorPoints = true;
+      }
+      // points: [7, 11]
+      const points = gotPatternPoints && gotColorPoints ? 11 : gotPatternPoints || gotColorPoints ? 7 : 0;
+      return [goal6, points];
+    }
+
+    return ["", 0];
+  }
+
+  getHexagonsAroundScoreTile = (goalIndex: number): Hex[] => {
+    const specificIndexes =
+      goalIndex === 0 ? [1, 2, 6, 8, 11, 12] :
+      goalIndex === 1 ? [8, 9, 12, 14, 18, 19] :
+      goalIndex === 2 ? [10, 11, 15, 17, 20, 21] : [];
+    const neighbors = specificIndexes.map(index => this.state.boardHexagons[index]);
+    return neighbors;
+  };
+
   updateBoardAndPlayerTiles = (hexagons: Hex[], tiles: Tile[]): void => {
       const tilesPlaced = this.state.tilesPlaced + 1;
       const playState = tilesPlaced === TILES_PLAYED_END_GAME ? PlayState.END : PlayState.TILE_PLACED;
+      if (playState === PlayState.END) {
+        this.calculateScore(true);
+      }
+
       this.setState({
         boardHexagons: hexagons,
         activeTile: undefined,
@@ -262,6 +497,12 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
         tilesPlaced: tilesPlaced,
         activeSelectedSpot: undefined,
         showScoreModal: playState === PlayState.END });
+  };
+
+  saveScore = (score: number): void => {
+    const currentDate = (new Date()).toDateString();
+    saveHighScores({ gameId: gameId, score: score, timestamp: currentDate });
+    this.setState({ highScores: loadHighScores()});
   };
 
   setActiveAction = (action: ActionType, activeThing: string | Tile | undefined): void => {
@@ -364,6 +605,7 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
   };
 
   setShowScoreModal = (show: boolean): void => {
+    this.calculateScore(this.state.playState === PlayState.END);
     this.setState({ showScoreModal: show });
   }
 
@@ -386,6 +628,7 @@ export class GameProvider extends Component<{ children: ReactNode }, GameState> 
       addButton: this.addButton,
       addCatButton: this.addCatButton,
       setShowScoreModal: this.setShowScoreModal,
+      saveScore: this.saveScore,
     };
 
     return (
