@@ -50,7 +50,7 @@ export const CatPointsMap: CatPointsMapType =
 
 function saveHighScores(score: FinalScore) {
   let currentScores = loadHighScores();
-  const currentGameScoreIndex = currentScores.findIndex((score: FinalScore) => score.gameId === score.gameId);
+  const currentGameScoreIndex = currentScores.findIndex((score: FinalScore) => score.gameId === gameId);
   if (currentGameScoreIndex > -1) {
     currentScores[currentGameScoreIndex] = score;
   }
